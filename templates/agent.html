@@ -1,0 +1,25 @@
+<text-field label="Label" model="item">x</text-field>
+<field label="Information">
+  <input type="text" ng-model="item.label" style="width: 100%"/>
+</field>
+<field label="Properties">
+  <input type="hidden" ng-model="item.properties" multiple="multiple" maia-select maia-class="property" style="width: 100%"/>
+</field>
+<field label="Personal values">
+  <input type="hidden" ng-model="item.personal_values" multiple="multiple" maia-select maia-class="personal_value" style="width: 100%"/>
+</field>
+<field label="Information">
+  <input type="text" ng-model="item.information" style="width: 100%"/>
+</field>
+<field label="Physical components">
+  <input type="hidden" ng-model="item.physical_components" multiple="multiple" maia-select maia-class="physical_component" style="width: 100%"/>
+</field>
+<field label="Possible roles">
+  <input type="hidden" ng-model="item.roles" multiple="multiple" maia-select maia-class="role" style="width: 100%"/>
+</field>
+<field label="Intrinsic capabilities">
+  <input type="hidden" ng-model="item.intrinsic_capabilities" multiple="multiple" ui-select2="{tags:[]}" style="width: 100%"/>
+</field>
+<field label="Decision making criteria">
+  <input type="hidden" ng-model="item.decision_making_criteria" multiple="multiple" ui-select2="{tags:[]}" style="width: 100%"/>
+</field>
