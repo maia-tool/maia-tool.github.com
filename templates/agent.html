@@ -1,25 +1,10 @@
-<text-field label="Label" model="item">x</text-field>
-<field label="Information">
-  <input type="text" ng-model="item.label" style="width: 100%"/>
-</field>
-<field label="Properties">
-  <input type="hidden" ng-model="item.properties" multiple="multiple" maia-select maia-class="property" style="width: 100%"/>
-</field>
-<field label="Personal values">
-  <input type="hidden" ng-model="item.personal_values" multiple="multiple" maia-select maia-class="personal_value" style="width: 100%"/>
-</field>
-<field label="Information">
-  <input type="text" ng-model="item.information" style="width: 100%"/>
-</field>
-<field label="Physical components">
-  <input type="hidden" ng-model="item.physical_components" multiple="multiple" maia-select maia-class="physical_component" style="width: 100%"/>
-</field>
-<field label="Possible roles">
-  <input type="hidden" ng-model="item.roles" multiple="multiple" maia-select maia-class="role" style="width: 100%"/>
-</field>
-<field label="Intrinsic capabilities">
-  <input type="hidden" ng-model="item.intrinsic_capabilities" multiple="multiple" ui-select2="{tags:[]}" style="width: 100%"/>
-</field>
-<field label="Decision making criteria">
-  <input type="hidden" ng-model="item.decision_making_criteria" multiple="multiple" ui-select2="{tags:[]}" style="width: 100%"/>
-</field>
+<div ng-controller="GenericRecordController">
+  <text-field label="Label" model="item" prop="label" mode="mode"></text-field>
+  <select-field label="Properties" model="item" prop="properties" type="property" multiple="multiple" mode="mode" formatter="label + ' (' + type + ')'" creator='label' creator-dialog="true"></select-field>
+  <select-field label="Personal values" model="item" prop="personal_values" type="personal_value" multiple="multiple" mode="mode" formatter="label + ' (' + value + ')'" creator='label' creator-dialog="true"></select-field>
+  <text-field label="Information" model="item" prop="information" mode="mode"></text-field>
+  <select-field label="Physical components" model="item" prop="physical_components" type="physical_component" multiple="multiple" mode="mode" formatter="label" creator='label' creator-dialog="true"></select-field>
+  <select-field label="Possible roles" model="item" prop="roles" type="role" multiple="multiple" mode="mode" formatter="label" creator='label' creator-dialog="true"></select-field>
+  <select-field label="Intrinsic capabilities" model="item" prop="intrinsic_capabilities" type="capability" multiple="multiple" mode="mode" formatter="label" creator='label'></select-field>
+  <select-field label="Decision making criteria" model="item" prop="decision_making_criteria" type="criterium" multiple="multiple" mode="mode" formatter="label" creator='label'></select-field>
+</div>

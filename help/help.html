@@ -1,0 +1,147 @@
+
+
+          <h1>
+            Consititutional structure
+          </h1>
+          <p>
+            The constitutional structure covers the social concepts of a system. This structure defines roles, institutions, and role dependencies.
+          </p>
+
+          <h1>Role</h1>
+          <p>
+            A role is an abstract representation of a set of activities that take place according to some rules in order to reach social objectives. Agents which are defined separately in the collective structure, can take roles. Agents taking a certain role may behave differently according to their internal agent attributes (e.g. personal values). It is possible for an agent to take more than one role be it simultaneously or sequentially.
+            A role has the following properties:
+          </p>
+          <ul>
+            <li>Objective: The general result of a role. Agents communicate with each other based on their role objectives. The emergent interactions in the model are not necessarily consistent with the objectives of the roles. If the attributes of an agent such as his internal interests are not in line with the objectives of a role, objective inconsistencies in interactions may occur. </li>
+            <li>Sub-objectives: The desired intermediate states of an objective. These sub-objectives are further used to define the institutional capabilities</li>
+            <li>Institutional Statement: The set of rules that apply to this role (will be explained in the institution section).</li>
+            <li>Entry Condition: The set of conditions under which an agent can take a role. These conditions define how an agent can switch between roles or have multiple roles at the same time. </li>
+            <li>Institutional Capability: The functions that become available to an agent when taking a certain role. </li>
+          </ul>
+          <h1>Institutional Statement</h1>
+          <p>
+            Institutional statements are presented as ADICO sequences.  An ADICO sequence consists of 5 components: Attributes, Deontic, aIm, Condition and Or else. Following this structure, there are three different types of institutional statements. If there is no `Or else' for an ADICO statement, it is considered as a norm. In other words, if an agent does not follow a norm, he may receive different reactions but there is not explicit unique sanction. A `shared strategy' is a type of institutional statement where there are no deontic type or sanctions. Agents follow institutional statements depending on the roles they are taking.
+          </p>
+          <ul>
+            <li>Attribute: The roles that would be using this institution as part of their definition. </li>
+            <li>Deontic type: An institution can be in the form of prohibition, obligation or permission.</li>
+            <li>aIm : The goal of the institution which may be in the form of action or outcome. If in the form of action, the aim of an institutional statement should be defined as a capability of the roles that the statement is a part of ( i.e. the attributes of the statement). The aim can also be presented an an expected outcome. The aim does not include description of when and where the action is conducted. </li>
+            <li>Condition: The condition for the institution to hold which may address when and where the aim should take place. The when maybe temporal or in relation to some other concept. </li>
+            <li>Or else: The sanction for the agent taking the role if he does not follow the institution. Agents can decide to follow rules or disobey them based on their own preferences and decision making behaviour. </li>
+            <li>Institutional type: Type can be formal (laws and regulations, written) or informal (not written ). </li>
+          </ul>
+
+          <h1>Dependencies</h1>
+          <p>
+            A dependency relation describes the fact that one role depends on another role to realize his objectives. The depender is the role with an objective. The dependee is the role that fulfils the objective of the depender
+          </p>
+        
+
+
+          <h1>
+            Physical Structure
+          </h1>
+          <p>
+           The physical structure consists of any type of entity that has a physical representation in the system.
+          </p>
+          <p>
+            Please use the panels above to enter the physical resources of the system.
+          </p>
+        
+
+
+          <h1>Physical Component</h1>
+          <p>
+            A physical component in the system is an entity that can be used/produced by different agents in the system or constraint their behaviour. A physical component may be assigned to an agent through the role he is taking or may also belong to an agent independent of his role(s). For example, in a given setting, we may define the human body as a physical component belonging to an agent.
+          </p>
+          <ul>
+            <li>Property: Each physical component may have properties</li>
+            <li>Behaviour: A physical component can have certain behaviours such as ageing.</li>
+            <li>Type: A component can be either open or fenced. If a property is fenced the access is restricted to those agents that have the right. Open components can also have rules that define how and when an agent can use a resource.The difference between these two types of components is most useful when defining layouts and locations for agent models. </li>
+          </ul>
+          <h1>Physical Connection</h1>
+          <p>
+            Physical components may have composite relations. For example a connection can be defined between a door and a room.
+            The begin node and end node of a physical connection are physical components.
+          </p>
+          <h1>Physical Composition</h1>
+          <p>
+            The composition of physical components is captured in this concept.
+          </p>
+        
+
+
+          <h1>
+            Collective Structure
+          </h1>
+          <p>
+          </p>
+        
+
+
+          <h1>Agent</h1>
+          <p>
+            An agent is an institution-driven entity in the system who must take roles to be able to perform tasks in a given system.
+          </p>
+          <ul>
+            <li>Properties: The case relevant attributes of the person represented as an agent. </li>
+            <li>Personal Values: The intentions of an agent which determine his decision making behaviour. </li>
+            <li>Information: The information available to an agent. </li>
+            <li>Physical components: Similar to information, agents can also possess physical components. </li>
+            <li>Possible Roles: The roles that the agent has the potential of taking. An agent must take a role to take part in the system. </li>
+            <li>Intrinsic Capabilities: The capabilities an agent has independent of the role he is taking. All the actions taking place in the system should be reflected as an intrinsic capability of an agent, an institutional capability of a role or a behaviour of a physical component. </li>
+            <li>Decision Making Criteria: The criteria that the agent uses to choose between a set of options. Decisions are related to actions in the action situation described later</li>
+          
+        </ul>
+
+
+          <h1>Operational structure</h1>
+          <p>
+            The operational structure makes use of the concepts in the physical, constitutional and collective structures to provide the dynamics of the agent-based model.
+          </p>
+        
+
+
+          <h1>Action Situation</h1>
+          <p>
+            The action situation component defines the overall operational procedure of the system. Each action situation is the placeholder for a set of related actions. Each action contains:
+          </p>
+          <ul>
+            <li>Precondition</li>
+            <li>Action body: The intrinsic capability of an agent, the institutional capability part of the role definition, or a physical component behaviour can all be considered as the actions of an action situation. It is the creativity of the modeller to groups related actions into relatively independent actions situations. In other words, the actions in an action situation are more coupled that the actions across multiple action situations. The decision about choosing a particular event as an action situation or only one action as part of an action situation highly depends on the level of detail we are planning to give to the agent-based model. If one action is big enough to be decomposed into many individual actions, it might be considered as an action situation.However, for a given action situation, more than one agent is involved even if they are taking the same role. </li>
+            <li>Physical Component: In action situation some physical components may be present. </li>
+            <li>Institutional Statement: Institutional statements usually hold in certain situations. The agents follow the statements if they are taking specific roles. </li>
+          </ul>
+          <h1>Role Enactment</h1>
+          <p>
+            Agents can take roles in different actions. This component of the operation structure clarifies the relationship between actions, roles and agents.
+          </p>
+          <ul>
+            <li>Agent: The agents that are present in a given action situation.</li>
+            <li>Role: The roles that the agents present in the action situation have the possibility of taking. </li>
+            <li>Entity action: Defined as a component of the operational structure. </li>
+          </ul>
+        
+
+
+          <h1>
+            Evaluative Structure
+          </h1>
+          <p>
+            This structure deals with the parameters that are to the emergent outcomes of a system. These parameters can be used for model validation (i.e. having built the right model) and also, to answer the questions that the agent-based model should have answers for.
+          </p>
+        
+
+
+          <h1>Validation</h1>
+          <ul>
+            <li>Validation parameter : The parameters that can be used to check the validity of the model or in other words, to check whether the model is behaving the way it should. </li>
+            <li>Action situation: The action situation that is related to the validation parameter. </li>
+          </ul>
+          <h1>Problem Domain </h1>
+          <ul>
+            <li>Problem domain parameters: Assigned to questions that need to be answered by the agent-based model. </li>
+            <li>Action situation: The action situation that is related to the validation parameter. </li>
+          </ul>
+        "

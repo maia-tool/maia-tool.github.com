@@ -1,54 +1,229 @@
 <!doctype html>
 <html ng-app="maia">
   <head>
-    <!-- script src="http://ajax.googleapis.com/ajax/libs/jquery/1.9.0/jquery.min.js"></script>
-    <script src="https://ajax.googleapis.com/ajax/libs/jqueryui/1.8.18/jquery-ui.min.js"></script>
-    <script src="https://raw.github.com/twitter/bootstrap/master/docs/assets/js/bootstrap.js"></script>
-    <script src="select2/select2.js"></script>
-    <script src="http://ajax.googleapis.com/ajax/libs/angularjs/1.0.4/angular.js"></script>
-    <script src="ui-bootstrap-0.1.0.min.js"></script>
-    <script src="angular-ui.min.js"></script>
-    <script src="script.js"></script>
-    <link rel="stylesheet" href="http://ajax.googleapis.com/ajax/libs/jqueryui/1.8.18/themes/base/jquery-ui.css">
-    <link href="http://netdna.bootstrapcdn.com/twitter-bootstrap/2.2.2/css/bootstrap.min.css" rel="stylesheet"/>  
-    <link href="select2/select2.css" rel="stylesheet" / -->
+    <link href="css/jquery-ui.css" rel="stylesheet"/>
+    <link href="css/bootstrap.css" rel="stylesheet"/>
+    <link href="css/select2.css" rel="stylesheet"/>
+    <link href="css/shake.css" rel="stylesheet"/>
+    <link href="css/app.css" rel="stylesheet"/>
     
-    <link rel="stylesheet" href="http://ajax.googleapis.com/ajax/libs/jqueryui/1.9.0/themes/base/jquery-ui.css">
-    <link href="http://twitter.github.com/bootstrap/assets/css/bootstrap.css" rel="stylesheet">
-    <link href="select2/select2.css" rel="stylesheet"/>
-    <!-- link rel="stylesheet" href="style.css" -->
-    <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.7.1/jquery.min.js"></script>
-    <script src="https://ajax.googleapis.com/ajax/libs/jqueryui/1.9.0/jquery-ui.min.js"></script>
-    <script src="https://raw.github.com/twitter/bootstrap/master/docs/assets/js/bootstrap.js"></script>
-    <script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.0.1/angular.js"></script>
-    <script src="angular-ui.min.js"></script>
-    <script src="select2/select2.js"></script>
-    <script src="ui-bootstrap-0.1.0.min.js"></script>
-    
-    <script src="script.js"></script>
-    
+    <script src="js/jquery.js"></script>
+    <script src="js/jquery-ui.js"></script>
+    <script src="js/jquery-scrollintoview.js"></script>
+    <script src="js/bootstrap.js"></script>
+    <script src="js/angular.js"></script>
+    <script src="js/angular-ui.js"></script>
+    <script src="js/select2.js"></script>
+    <script src="js/ui-bootstrap-0.js"></script>
+    <script src="js/underscore-1.js"></script>
+    <script src="js/backbone.js"></script>
+    <script src="js/raphael-min.js"></script>
+    <script src="js/dracula_graffle.js"></script>
+    <script src="js/dracula_graph.js"></script>
+    <script src="js/dracula_algorithms.js"></script>
+    <script src="js/app.js"></script>
   </head>
   <body>
 
 <style type="text/css">
-  field input {
-    width: 100%
+  .container-main {
+    padding-top: 80px;
+  }
+  
+  .table-rowhover tbody tr:hover {
+    background-image: linear-gradient(to bottom, #FFFFFF, #eef4ff) !important;
+  }
+  
+  field input.ng-scope, field .select2-choices, field .select2-container > .select2-choice  {
+    width: 100%;
+    min-height: 30px !important;
+    -box-sizing: border-box;
+    -moz-box-sizing: border-box;
+    -webkit-box-sizing: border-box;
+    background-image: none !important;
+  }
+  
+  field .select2-container {
+    width: 100%;
+    display: block;
+  }
+  
+  field .select2-container,
+  field input.ng-scope {
+    margin: -5px 0 -5px 0;
+  }
+  
+  .select2-container .select2-choices {
+    padding-right: 10px;
+    -webkit-border-radius: 4px;
+       -moz-border-radius: 4px;
+            border-radius: 4px;
+    background-color: #ffffff;
+    border: 1px solid #cccccc;
+    -webkit-box-shadow: inset 0 1px 1px rgba(0, 0, 0, 0.075);
+       -moz-box-shadow: inset 0 1px 1px rgba(0, 0, 0, 0.075);
+            box-shadow: inset 0 1px 1px rgba(0, 0, 0, 0.075);
+    -webkit-transition: border linear 0.2s, box-shadow linear 0.2s;
+       -moz-transition: border linear 0.2s, box-shadow linear 0.2s;
+         -o-transition: border linear 0.2s, box-shadow linear 0.2s;
+            transition: border linear 0.2s, box-shadow linear 0.2s;
+  }
+  
+  field {
+    min-height: 30px;
+  }
+  
+  td.align-right {
+    text-align: right;  
+  }
+  
+  .card, .graph {
+    *position: relative;
+    *z-index: 2;
+    margin-bottom: 20px;
+    overflow: visible;
+  }
+
+  .card-inner, .graph-inner {
+    min-height: 40px;
+    background-color: #ffffff;
+    border: 1px solid #d4d4d4;
+    -webkit-border-radius: 8px;
+       -moz-border-radius: 8px;
+            border-radius: 8px;
+    *zoom: 1;
+    -webkit-box-shadow: 1px 1px 4px rgba(0, 0, 0, 0.065);
+       -moz-box-shadow: 1px 1px 4px rgba(0, 0, 0, 0.065);
+            box-shadow: 1px 1px 4px rgba(0, 0, 0, 0.065);
+  }
+  
+  .card-inner:hover {
+    -webkit-box-shadow: 2px 2px 8px rgba(0, 0, 0, 0.2);
+       -moz-box-shadow: 2px 2px 8px rgba(0, 0, 0, 0.2);
+            box-shadow: 2px 2px 8px rgba(0, 0, 0, 0.2);
+  }
+  
+  .card-inner {
+    padding-right: 20px;
+    padding-left: 20px;
+  }
+  
+  .graph-inner {
+    padding: 0;
+  }
+
+  .card-inner:before,
+  .card-inner:after {
+    display: table;
+    line-height: 0;
+    content: "";
+  }
+
+  .card-inner:after {
+    clear: both;
+  }
+
+  .card .container {
+    width: auto;
+  }
+  
+  .card-form {
+    margin: 15px 0 10px 0;
+  }
+  
+  .card-form field .row-fluid, 
+  .card-form field .row-fixed {
+    padding: 5px 0;
+    border-bottom: 1px dotted #e0e0e0;
+  }
+  
+  .card-form *:last-child > field .row-fluid, 
+  .card-form *:last-child > field .row-fixed {
+    border-bottom: none;
+  }
+  
+  
+  .card-form-create field .row-fluid,
+  .card-form-update field .row-fluid {
+    padding: 15px 0;
+  }
+  
+  .modal field .row-fluid,
+  .modal field .row-fixed {
+    padding: 7px;
+  }
+  
+  .card-form field .row-fluid [class*="span"] {
+    min-height: 0;
+  }
+  
+  field label {
+    margin: 0;
+    color: #556;
+  }
+  
+  .help h1, .help h2, .help h3 {
+    font-size: 13.5px;
+    line-height: 20px;
+    margin: 0;
+  }
+  
+  .main-nav {
+    width: 200px !important;
+  }
+  
+  .help, .help-inner {
+    max-width: 400px;
+    height: 500px;
   }
 </style>
-  
-<div ng-controller="AgentListController">
-  <ng-include ng-repeat="item in items" src="'templates/agent.html'" ng-controller="AgentController"></ng-include>
-<span>
-<select ui-select2 ng-model="bla" multiple="multiple">
-  <option></option>
-	<option value="">Pick a number</option>
-	<option value="one">First</option>
-	<option value="two">Second</option>
-	<option value="three">Third</option>
-  
-</select>
-</span>
+
+<div class="navbar navbar-inverse navbar-fixed-top">
+  <div class="navbar-inner">
+    <div class="container">
+      <ul class="nav">
+        <li><a>Save</a></li>
+        <li><a>Print</a></li>
+      </ul>
+    </div>
+  </div>
 </div>
   
+<div class="container-fluid container-main">
+  <div class="row-fluid">
+    <div class="span3 main-nav">
+      <ul class="nav nav-list affix">
+        <li class="nav-header">Collective structure</li>
+        <li><a href="#/list/agent">Agents</a><li>
+        <li class="nav-header">Constitutional structure</li>
+        <li><a href="#/list/role">Roles</a><li>
+        <li><a href="#/list/institution">Institutions</a><li>
+        <li><a href="#/graph/dependency">Dependencies</a><li>
+        <li class="nav-header">Physical structure</li>
+        <li><a href="#/list/physical_component">Physical components</a><li>
+        <li><a href="#/graph/connection">Physical connections</a><li>
+        <li><a href="#/graph/composition">Physical composition</a><li>
+        <li class="nav-header">Operational structure</li>
+        <li><a href="#/list/entity_action">Entity actions</a><li>
+        <li><a href="#/list/plan">Plans</a><li>
+        <li><a href="#/list/action_situation">Action situations</a><li>
+        <li><a href="#/list/role_enactment">Role enactments</a><li>
+        <li><a href="#/list/action_arena">Action arena</a><li>
+        <li class="nav-header">Evaluative structure</li>
+        <li><a href="#/list/problem_domain_variable">Problem domain evaluation</a><li>
+        <li><a href="#/matrix/problem_domain_variable">Problem domain matrix</a><li>
+        <li><a href="#/list/validation_variable">Validation</a><li>
+        <li><a href="#/matrix/validation_variable">Reality closeness matrix</a><li>
+      </ul>
+    </div>
+    <div class="span6" ng-view></div>
+    <div class="span3 help" ng-controller="HelpController">
+      <div class="help-inner">
+        <ng-include src='helpUrl'></ng-include>
+      </div>
+    </div>
+  <div>
+</div>
+
   </body>
 </html>

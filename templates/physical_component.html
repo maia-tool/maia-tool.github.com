@@ -1,6 +1,6 @@
-<field label="Label">
-  <input type="text" ng-model="item.label" />
-</field>
-<field label="Type">
-  <input type="text" ng-model="item.type" />
-</field>
+<div ng-controller="GenericRecordController">
+  <text-field label="Label" model="item" prop="label" mode="mode"></text-field>
+  <select-field label="Properties" model="item" prop="properties" type="property" multiple="multiple" mode="mode" formatter="label + ' (' + type + ')'" creator='label' creator-dialog="true"></select-field>
+  <text-field label="Type" model="item" prop="type" mode="mode"></text-field>
+  <select-field label="Behaviors" model="item" prop="behaviors" type="behavior" multiple="multiple" mode="mode" formatter="label" creator='label'></select-field>
+</div>

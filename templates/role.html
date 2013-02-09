@@ -1,15 +1,7 @@
-<field label="Label">
-  <input type="text" ng-model="item.label" />
-</field>
-<field label="Objectives">
-  <input type="hidden" ng-model="item.objectives" multiple="multiple" maia-select maia-class="objective" style="width: 100%"/>
-</field>
-<field label="Institutions">
-  <input type="hidden" ng-model="item.institutions" multiple="multiple" maia-select maia-class="institution" style="width: 100%"/>
-</field>
-<field label="Entry conditions">
-  <input type="text" ng-model="item.entry_conditions" />
-</field>
-<field label="Institutional capabilities">
-  <input type="hidden" ng-model="item.institutional_capabilities" multiple="multiple" ui-select2="{tags:[]}" style="width: 100%"/>
-</field>
+<div ng-controller="GenericRecordController">
+  <text-field label="Label" model="item" prop="label" mode="mode"></text-field>
+  <select-field label="Objectives" model="item" prop="objectives" type="objective" multiple="multiple" mode="mode" formatter="label" creator='label'></select-field>
+  <select-field label="Institutions" model="item" prop="institutions" type="institution" multiple="multiple" mode="mode" formatter="label" creator='label' creator-dialog="true"></select-field>
+  <select-field label="Entry conditions" model="item" prop="entry_conditions" type="entry_condition" multiple="multiple" mode="mode" formatter="label" creator='label'></select-field>
+  <select-field label="Institutional capabilities" model="item" prop="institutional_capabilities" type="capability" multiple="multiple" mode="mode" formatter="label" creator='label'></select-field>
+</div>

@@ -863,6 +863,14 @@
         opened: function () {
             return this.container.hasClass("select2-dropdown-open");
         },
+        
+        update: function(opts) {
+          for (var key in opts)
+            if (opts.hasOwnProperty(key))
+              this.opts[key] = opts[key];
+              
+          this.updateResults();
+        },
 
         // abstract
         positionDropdown: function() {
@@ -1677,6 +1685,18 @@
 
         // single
         onSelect: function (data) {
+            /* MOD HERE */
+            if (data.onSelect) {
+                var self = this;
+                this.close();
+                data.onSelect(data, function(data) {
+                    setTimeout(function() {
+                        self.onSelect(data);
+                    }, 0);
+                });
+                return;
+            }
+            
             var old = this.opts.element.val();
 
             this.opts.element.val(this.id(data));
@@ -2037,12 +2057,10 @@
         onSelect: function (data) {
             /* MOD HERE */
             if (data.onSelect) {
-                console.log(data);
                 var self = this;
                 this.close();
                 data.onSelect(data, function(data) {
                     setTimeout(function() {
-                        console.log(data);
                         self.onSelect(data);
                     }, 0);
                 });
@@ -2322,7 +2340,7 @@
         var args = Array.prototype.slice.call(arguments, 0),
             opts,
             select2,
-            value, multiple, allowedMethods = ["val", "destroy", "opened", "open", "close", "focus", "isFocused", "container", "onSortStart", "onSortEnd", "enable", "disable", "positionDropdown", "data"];
+            value, multiple, allowedMethods = ["val", "destroy", "opened", "open", "close", "focus", "isFocused", "container", "onSortStart", "onSortEnd", "enable", "disable", "positionDropdown", "data", "update"];
 
         this.each(function () {
             if (args.length === 0 || typeof(args[0]) === "object") {

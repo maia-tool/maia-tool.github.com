@@ -1,0 +1,6 @@
+<field label="{{label}}">
+  <div ng-switch on="mode">
+    <span ng-switch-when="view">{{model[prop]}}</span>
+    <select ng-options="val for val in options" ng-model="model[prop]">
+  </div>
+</field>

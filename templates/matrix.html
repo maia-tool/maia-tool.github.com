@@ -1,0 +1,22 @@
+
+<table class="table table-bordered">
+  <thead>
+    <tr>
+       <td></td>
+       <th ng-repeat="ent in entity_actions">{{ent.label}}</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr ng-repeat="item in items">
+      <th>{{variables[item.dependent_variable._id].label}}</th>
+      <td ng-repeat="ent in entity_actions">
+        <select>
+          <option value='direct'>direct</option>
+          <option value='indirect'>indirect</option>
+          <option value=''>none</option>
+        </select>
+      </td>
+    </tr>
+  </tbody>
+</table>
+  

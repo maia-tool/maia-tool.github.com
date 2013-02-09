@@ -1,3 +1,6 @@
-<field label="{{label}}">
-  <input type="text" ng-model="item.label" />
+<field label="{{label}}" primary="{{primary}}">
+  <div ng-switch on="mode">
+    <span ng-switch-when="view">{{model[prop]}}</span>
+    <input ng-switch-default type="text" ng-model="model[prop]" ng:required="required"/>
+  </div>
 </field>

@@ -1,0 +1,49 @@
+<div>
+  <div class="navbar">
+    <div class="navbar-inner">
+      <div class="btn-group">
+        <button class="btn" ng:click="createRecord()"><i class="icon-plus-sign"></i> Add {{_class}}...</button>
+      </div>
+      <div class="navbar-search pull-right">
+        <input type="text" class="search-query" placeholder="Search" ng-model="query" />
+      </div>
+    </div>
+  </div>
+     
+  <div ng-repeat="item in items | orderBy:'label' | filter:query" ng-controller="ListFormController">
+    <div class="card" ng:class="{'animated shake': hasErrors}">
+      <div class="card-inner">
+        <div class="card-form card-form-{{mode}}" ng:click="open($event)"> 
+          <div ng-repeat="error in errors" class="alert alert-error">{{error}}</div>
+          <ng-switch on="mode">
+            <ng-include src="recordTemplateUrl"></ng-include>
+            <span ng-switch-when="view"></span>
+            <div ng-switch-default>
+              <input class="btn btn-primary" type="submit" ng:click="save($event)" value="Save"/>
+              <input class="btn" type="submit" ng:click="revert($event)" value="Cancel"/>
+            </div>
+          </ng-switch>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div ng-controller="NewRecordController">
+    <ng-switch on="mode">
+      <div ng-switch-when="view" >
+        <a href="#" ng-click="open($event)">Add {{_class}}...</button>
+      </div>
+      <div class="card {{animation}}" ng-switch-default>
+        <div class="card-inner card-inner">
+          <div class="card-form card-form-{{mode}}"> 
+            <div ng-repeat="error in errors" class="alert alert-error">{{error}}</div>
+            <ng-include src="recordTemplateUrl"></ng-include>
+            <div>
+              <input class="btn btn-primary" type="submit" ng:click="save($event)" value="Save"/>
+              <input class="btn" type="submit" ng:click="revert($event)" value="Cancel"/>
+            </div>
+          </div>
+        </div>
+      </div>
+    </ng-switch>
+  </div>
+</div>
