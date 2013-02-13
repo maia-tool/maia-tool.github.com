@@ -9,20 +9,20 @@
 
 /*
         Bellman-Ford
-    
+
     Path-finding algorithm, finds the shortest paths from one node to all nodes.
-    
-    
+
+
         Complexity
-        
+
     O( |E| · |V| ), where E = edges and V = vertices (nodes)
-    
-    
+
+
         Constraints
-    
+
     Can run on graphs with negative edge weights as long as they do not have
     any negative weight cycles.
-    
+
  */
 
 function bellman_ford(g, source) {
@@ -64,7 +64,7 @@ function bellman_ford(g, source) {
 
 /*
    Path-finding algorithm Dijkstra
-   
+
    - worst-case running time is O((|E| + |V|) · log |V| ) thus better than
      Bellman-Ford for sparse graphs (with less edges), but cannot handle
      negative edge weights
@@ -176,60 +176,60 @@ function floyd_warshall(g, source) {
 
 /*
         Ford-Fulkerson
-    
+
     Max-Flow-Min-Cut Algorithm finding the maximum flow through a directed
     graph from source to sink.
-    
-    
+
+
         Complexity
 
     O(E * max(f)), max(f) being the maximum flow
-    
-    
+
+
         Description
 
     As long as there is an open path through the residual graph, send the
     minimum of the residual capacities on the path.
-    
-    
+
+
         Constraints
-    
+
     The algorithm works only if all weights are integers. Otherwise it is
     possible that the Ford–Fulkerson algorithm will not converge to the maximum
     value.
-    
-    
+
+
         Input
-    
+
     g - Graph object
     s - Source ID
     t - Target (sink) ID
-    
-    
+
+
         Output
-    
+
     Maximum flow from Source s to Target t
 
  */
 /*
         Edmonds-Karp
-    
+
     Max-Flow-Min-Cut Algorithm finding the maximum flow through a directed
     graph from source to sink. An implementation of the Ford-Fulkerson
     algorithm.
-    
-    
+
+
         Complexity
-    
+
     O(|V|*|E|²)
-    
-    
+
+
         Input
-        
+
     g - Graph object (with node and edge lists, capacity is a property of edge)
     s - source ID
     t - sink ID
-    
+
  */
 
 function edmonds_karp(g, s, t) {
@@ -241,7 +241,7 @@ function edmonds_karp(g, s, t) {
    - takes an array as the input, with elements having a key property
    - elements will look like this:
         {
-            key: "... key property ...", 
+            key: "... key property ...",
             value: "... element content ..."
         }
     - provides insert(), min(), extractMin() and heapify()
@@ -275,7 +275,7 @@ function BinaryMinHeap(array, key) {
       return 2 * index + 1;
       };
 
-/* Helper function to swap elements with their parent 
+/* Helper function to swap elements with their parent
        as long as the parent is bigger */
 
   function bubble_up(i) {
@@ -334,7 +334,7 @@ function BinaryMinHeap(array, key) {
 
 /* Return and remove the minimum
        1. Take the root as the minimum that we are looking for
-       2. Move the last element to the root (thereby deleting the root) 
+       2. Move the last element to the root (thereby deleting the root)
        3. Compare the new root with both of its children, swap it with the
           smaller child and then check again from there (bubble down)
     */

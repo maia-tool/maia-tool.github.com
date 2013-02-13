@@ -863,12 +863,12 @@
         opened: function () {
             return this.container.hasClass("select2-dropdown-open");
         },
-        
+
         update: function(opts) {
           for (var key in opts)
             if (opts.hasOwnProperty(key))
               this.opts[key] = opts[key];
-              
+
           this.updateResults();
         },
 
@@ -1696,7 +1696,7 @@
                 });
                 return;
             }
-            
+
             var old = this.opts.element.val();
 
             this.opts.element.val(this.id(data));
@@ -2066,7 +2066,7 @@
                 });
                 return;
             }
-            
+
             this.addSelectedChoice(data);
             if (this.select) { this.postprocessResults(); }
 

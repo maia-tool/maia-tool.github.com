@@ -9,11 +9,11 @@
       </div>
     </div>
   </div>
-     
+
   <div ng-repeat="item in items | orderBy:'label' | filter:query" ng-controller="ListFormController">
     <div class="card" ng:class="{'animated shake': hasErrors}">
       <div class="card-inner">
-        <div class="card-form card-form-{{mode}}" ng:click="open($event)"> 
+        <div class="card-form card-form-{{mode}}" ng:click="open($event)">
           <div ng-repeat="error in errors" class="alert alert-error">{{error}}</div>
           <ng-switch on="mode">
             <ng-include src="recordTemplateUrl"></ng-include>
@@ -34,7 +34,7 @@
       </div>
       <div ng-switch-default class="card" ng:class="{'animated shake': hasErrors}">
         <div class="card-inner card-inner">
-          <div class="card-form card-form-{{mode}}"> 
+          <div class="card-form card-form-{{mode}}">
             <div ng-repeat="error in errors" class="alert alert-error">{{error}}</div>
             <ng-include src="recordTemplateUrl"></ng-include>
             <div>

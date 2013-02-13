@@ -26,7 +26,7 @@
  * Edge Factory
  */
 var AbstractEdge = function() {}
-    
+
 AbstractEdge.prototype = {};
 var EdgeFactory = function() {
     this.template = new AbstractEdge();
@@ -53,7 +53,7 @@ var Graph = function() {
     this.edgeFactory = new EdgeFactory();
     };
 Graph.prototype = {
-/* 
+/*
      * add a node
      * @id          the node's ID (string or number)
      * @content     (optional, dictionary) can contain any information that is
@@ -632,7 +632,7 @@ Graph.Layout.Ordered.prototype = {
 };
 
 /*
- * usefull JavaScript extensions, 
+ * usefull JavaScript extensions,
  */
 
 function log(a) {

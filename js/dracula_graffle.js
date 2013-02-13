@@ -8,8 +8,8 @@
 /**
  * Usage:
  * connect two shapes
- * parameters: 
- *      source shape [or connection for redrawing], 
+ * parameters:
+ *      source shape [or connection for redrawing],
  *      target shape,
  *      style with { fg : linecolor, bg : background color, directed: boolean }
  * returns:
