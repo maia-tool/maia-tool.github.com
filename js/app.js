@@ -447,12 +447,6 @@ function ListController($scope, $routeParams) {
 }
 
 
-function AgentController($scope, $dialog) {
-
-}
-
-
-
 function openDialog($dialog, options) {
   function DialogController($scope, dialog) {
     $scope.item = options.item;
@@ -462,7 +456,7 @@ function openDialog($dialog, options) {
     $scope.validators = [];
  
     $scope.save = function() {
-      dialog.modalEl.removeClass('animated shake');
+      dialog.modalEl.removeClass('bounceInDown animated shake');
       if (!validate($scope, $scope.item)) {
         setTimeout(function() {
           dialog.modalEl.addClass('animated shake')
@@ -484,6 +478,8 @@ function openDialog($dialog, options) {
     backdrop: true,
     keyboard: true,
     backdropClick: false,
+    backdropFade: true,
+    modalClass: 'modal bounceInDown animated',
     templateUrl: 'templates/edit_dialog.html',
     controller: DialogController
   });
