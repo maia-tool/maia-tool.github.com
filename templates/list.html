@@ -32,7 +32,7 @@
       <div ng-switch-when="view" >
         <a href="#" ng-click="open($event)">Add {{_class}}...</button>
       </div>
-      <div class="card {{animation}}" ng-switch-default>
+      <div ng-switch-default class="card" ng:class="{'animated shake': hasErrors}">
         <div class="card-inner card-inner">
           <div class="card-form card-form-{{mode}}"> 
             <div ng-repeat="error in errors" class="alert alert-error">{{error}}</div>
