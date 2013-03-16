@@ -31,31 +31,6 @@ app.config(function($routeProvider, $locationProvider) {
   });
 });
 
-try {
-  window.model = JSON.parse(localStorage.getItem('data'));
-} catch (e) {
-  window.model = null;
-}
-
-if (!window.model) {
-  window.model = {
-    agent: {},
-    institution: {},
-    entity_action: {},
-    plan: {},
-    physical_component: {},
-    role: {},
-    objective: {},
-    capability: {},
-    entry_condition: {},
-    action_situation: {},
-    role_enactment: {},
-    action_arena: {},
-    variable: {},
-    problem_domain_variable: {},
-    validation_variable: {}
-  };
-}
 
 app.directive('field', function() {
   return {
@@ -97,42 +72,151 @@ app.directive('selectField', function() {
   };
 });
 
+var $data = new (function() {
+  var self = this;
+
+  var byId = {};
+  var byClass = {};
+
+  function saveToLocalStorage() {
+    var json = JSON.stringify(exportData());
+    window.localStorage.setItem('data', json);
+  }
+
+  function loadFromLocalStorage() {
+    try {
+      var data = JSON.parse(window.localStorage.getItem('data'));
+      importData(data);
+    } catch (e) {
+      clear();
+    }
+  }
+
+  var saveTimer = null;
+  function deferredSaveToLocalStorage() {
+    if (saveTimer)
+      clearTimeout(saveTimer);
+
+    saveTimer = setTimeout(function() {
+      saveTimer = null;
+      saveToLocalStorage();
+    }, 100);
+  }
+
+  function clear() {
+    for (var _id in byId) {
+      if (byId.hasOwnProperty(_id)) {
+        delete byId[_id];
+      }
+    }
+
+    for (var _class in byClass) {
+      if (byClass.hasOwnProperty(_class)) {
+        var index = byClass[_class];
+        index.splice(0, index.length);
+      }
+    }
+  }
+
+  function importData(data) {
+    clear();
+
+    for (var i = 0; i < data.length; i++) {
+      var obj = data[i];
+      if (!obj || !obj._id || !obj._class)
+        continue;
+      byId[obj._id] = obj;
+    }
+
+    for (var _id in byId) {
+      if (byId.hasOwnProperty(_id)) {
+        var obj = byId[_id];
+
+        var list = byClass[obj._class];
+        if (!list)
+          list = byClass[obj._class] = [];
+        list.push(obj);
+      }
+    }
+  }
+
+  function exportData() {
+    var objects = [];
+
+    for (var _id in byId) {
+      if (byId.hasOwnProperty(_id))
+        objects.push(byId[_id]);
+    }
+
+    return objects;
+  }
+
+  function getObject(_id) {
+    return byId[_id];
+  }
+
+  function getObjects(_class) {
+    var list = byClass[_class];
+    if (!list)
+      list = byClass[_class] = [];
+    return list;
+  }
+
+  function updateObject(obj, callback) {
+    var tgt;
+
+    if (obj._id && (tgt = getObject(obj._id))) {
+      if (tgt !== obj) {
+        for (var key in tgt)
+          if (tgt.hasOwnProperty(key) &&
+             !obj.hasOwnProperty(obj))
+            delete tgt[key];
+
+          for (var key in obj)
+            if (obj.hasOwnProperty(key))
+              tgt[key] = angular.copy(obj[key]);
+      }
+    } else {
+      tgt = angular.copy(obj);
+      tgt._id = Date.now();
+      byId[tgt._id] = tgt;
+
+      var list = byClass[tgt._class];
+      if (!list)
+        list = byClass[tgt._class] = [];
+
+      list.push(obj);
+    }
+
+    console.log(tgt);
+
+    deferredSaveToLocalStorage();
+
+    obj._id = tgt._id;
+    if (callback)
+      callback(tgt);
+  }
+
+  this.importData = importData;
+  this.exportData = exportData;
+  this.getObject = getObject;
+  this.getObjects = getObjects;
+  this.updateObject = updateObject;
+
+  loadFromLocalStorage();
+})();
+
 
 function updateObject(obj, callback) {
   angular.injector(['ng']).invoke(function($rootScope) {
     $rootScope.$apply(function() {
-      var id = obj._id || Date.now(),
-      table = model[obj._class] || (model[obj._class] = {}),
-      table = model[obj._class] || (model[obj._class] = {}),
-      tgt = table[id] || (table[id] = {});
-
-      if (!obj._id)
-        obj._id = id;
-
-      if (tgt !== obj) {
-        for (var key in tgt)
-          if (tgt.hasOwnProperty(key) &&
-          !obj.hasOwnProperty(obj))
-            delete tgt[key];
-
-        for (var key in obj)
-          if (obj.hasOwnProperty(key))
-            tgt[key] = obj[key];
-
-        localStorage.setItem('data', JSON.stringify(model));
-      }
-
-      callback && callback(tgt);
+      $data.updateObject(obj, callback);
     });
   });
 }
 
 function getObject(id, type) {
-  if (!model[type])
-    return;
-  if (!model[type][id])
-    return;
-  return model[type][id];
+  return $data.getObject(id);
 }
 
 /*
@@ -185,8 +269,18 @@ angular.module('maia').directive('maiaSelect', function($dialog, $parse, $interp
         creatorDialog = attrs.creatorDialog || scope.$eval(attrs.creatorDialogBinding),
         maxItems = attrs.maxItems || scope.$eval(attrs.maxItemsBinding);
 
+        var find = function(val) {
+          return getObject(val._ref);
+        };
+
         var map = scope.$eval(attrs.maiaMap) || function(item) {
-          return {_id: item._id,text: formatter(item) || ''}
+          console.log("mapping", item);
+          return {id: item._id,text: formatter(item) || ''}
+        };
+
+        var makeRef = scope.$eval(attrs.maiaDemap) || function(val) {
+           console.log("demapping", val);
+           return { _ref: val.id };
         };
 
         var filter = scope.$eval(attrs.maiaFilter) || function(item, term) {
@@ -199,10 +293,10 @@ angular.module('maia').directive('maiaSelect', function($dialog, $parse, $interp
 
         var getItems = function() {
           if (type.indexOf(',') === -1)
-            return objectValues(model[type] || {});
+            return $data.getObjects(type);
           var results = [];
           type.split(',').forEach(function(type) {
-            results = results.concat(objectValues(model[type] || {}));
+            results = results.concat($data.getObject(type));
           });
           return results;
         }
@@ -210,13 +304,13 @@ angular.module('maia').directive('maiaSelect', function($dialog, $parse, $interp
         var query = attrs.query || scope.$eval(attrs.queryBinding) || function(options) {
           var haveExactMatch = false;
           var results = getItems()
-          .map(map)
-          .filter(function(item) {
-            var r = filter(item, options.term);
-            if (r === 'exact')
-              haveExactMatch = true;
-            return r;
-          });
+                        .map(map)
+                        .filter(function(item) {
+                          var r = filter(item, options.term);
+                          if (r === 'exact')
+                            haveExactMatch = true;
+                          return r;
+                        });
 
           if (!haveExactMatch && (options.term || creatorDialog)) {
             var onSelect = function(data, callback) {
@@ -244,7 +338,7 @@ angular.module('maia').directive('maiaSelect', function($dialog, $parse, $interp
             }
 
             results.push({
-              _id: '__new__',
+              id: '__new__',
               text: options.term ? "Create '" + options.term + "'..." : "Create...",
               term: options.term,
               onSelect: onSelect
@@ -255,7 +349,6 @@ angular.module('maia').directive('maiaSelect', function($dialog, $parse, $interp
         }
 
         var opts = {};
-        opts.id = '_id';
         opts.query = query;
 
         if (maxItems)
@@ -280,10 +373,12 @@ angular.module('maia').directive('maiaSelect', function($dialog, $parse, $interp
             } else {
               if (isMultiple && !val) {
                 elm.select2('data', []);
-              } else if (angular.isObject(val)) {
-                elm.select2('data', val);
-              } else {
+              } else if (!val) {
                 elm.select2('data', {});
+              } else if (isMultiple) {
+                elm.select2('data', val.map(find).map(map));
+              } else {
+                elm.select2('data', map(find(val)));
               }
             }
           };
@@ -292,7 +387,14 @@ angular.module('maia').directive('maiaSelect', function($dialog, $parse, $interp
             // Set the view and model value and update the angular template manually for the ajax/multiple select2.
             elm.bind("change", function() {
               scope.$apply(function() {
-                controller.$setViewValue(elm.select2('data'));
+                var val = elm.select2('data');
+                if (isMultiple) {
+                  val = (val || []).map(makeRef);
+                } else {
+                  if (val)
+                    val = makeRef(val);
+                }
+                controller.$setViewValue(val);
               });
             });
 
@@ -326,7 +428,6 @@ angular.module('maia').directive('maiaSelect', function($dialog, $parse, $interp
             elm.select2('update', {maximumSelectionSize: newVal});
           });
         }
-        ;
 
         elm.bind('$destroy', function() {
           elm.select2('destroy');
@@ -435,10 +536,7 @@ angular.module('maia').directive('maiaGraph', function($dialog, $parse, $interpo
 function ListController($scope, $routeParams) {
   var _class = $routeParams['class'];
   $scope._class = _class;
-  $scope.hash = model[_class];
-  $scope.$watch('hash', function(newValue) {
-    $scope.items = objectValues(newValue);
-  }, true);
+  $scope.items = $data.getObjects(_class);
   $scope.itemTemplate = {_class: _class};
   $scope.recordTemplateUrl = 'templates/' + _class + '.html';
   $scope.createRecord = function() {
@@ -545,8 +643,8 @@ function ListFormController($scope, $rootScope, $element) {
       return;
     }
 
-    updateObject($scope.item, function($savedObject) {
-      $scope.item = $savedObject;
+    updateObject($scope.item, function(savedObject) {
+      $scope.item = savedObject;
     });
     $scope.mode = 'view';
 
@@ -660,38 +758,38 @@ function EntityActionRecordController($scope) {
   $scope.queryPerformer = function(options) {
     var results;
 
-    results = objectValues(model.agent || {}).concat(objectValues(model.physical_component || {})).concat(objectValues(model.role || {}));
+    results = $data.getObjects('agent')
+              .concat($data.getObjects('physical_component'))
+              .concat($data.getObjects('role'));
 
-    results = results.map(function(option) {
-      return {_id: option._id,text: option.label};
-    });
-    results = results.filter(function(option) {
+    results = results.map(function(item) {
+      return {id: item._id, text: item.label};
+    }).filter(function(option) {
       return filter(option, options.term);
     });
 
     options.callback({results: results});
   }
 
-
   $scope.queryActionBody = function(options) {
     var val = $scope.item.performer;
     var performer, results;
 
-    if (!val || !val._id)
-      results = [];
-    else if (performer = getObject(val._id, 'agent'))
-      results = objectValues(performer.intrinsic_capabilities || {})
-    else if (performer = getObject(val._id, 'role'))
-      results = objectValues(performer.institutional_capabilities || {})
-    else if (performer = getObject(val._id, 'physical_component'))
-      results = objectValues(performer.behaviors || {})
-    else
-      results = [];
+    switch (val && val._ref && (performer = getObject(val._ref)) && performer._class) {
+      case 'agent':
+        results = performer.intrinsic_capabilities;
+        break;
+      case 'role':
+        results = performer.institutional_capabilities;
+        break;
+      case 'physical_component':
+        results = performer.behaviors;
+        break;
+    }
 
-    //results = options.map(function(option) {
-    //  return { _id: option._id, text: option._label };
-    //});
-    results = results.filter(function(option) {
+    results = (results || []).map(function(item) {
+      return {id: item._ref, text: $data.getObject(item._ref).label};
+    }).filter(function(option) {
       return filter(option, options.term);
     });
 
@@ -702,17 +800,12 @@ function EntityActionRecordController($scope) {
     var val = $scope.item.performer;
     var performer, results;
 
-    if (!val || !val._id)
-      results = [];
-    else if (performer = getObject(val._id, 'agent'))
+    if (val && val._ref && (performer = getObject(val._ref)) && performer._class === 'agent')
       results = objectValues(performer.decision_making_criteria || {})
-    else
-      results = [];
 
-    //results = options.map(function(option) {
-    //  return { _id: option._id, text: option._label };
-    //});
-    results = results.filter(function(option) {
+    results = (results || []).map(function(item) {
+      return {id: item._ref, text: $data.getObject(item._ref).label};
+    }).filter(function(option) {
       return filter(option, options.term);
     });
 
@@ -733,10 +826,12 @@ function VariableComputationController($scope) {
   $scope.queryIndependentVariables = function(options) {
     var results;
 
-    results = objectValues(model.variable || {}).concat(objectValues(model.property || {})).concat(objectValues(model.personal_value || {}));
+    results = $data.getObjects('variable')
+              .concat($data.getObjects('property'))
+              .concat($data.getObjects('personal_value'));
 
     results = results.map(function(option) {
-      return {_id: option._id,text: option.label};
+      return {id: option._id, text: option.label};
     });
     results = results.filter(function(option) {
       return filter(option, options.term);
@@ -747,13 +842,19 @@ function VariableComputationController($scope) {
 }
 
 
-function SelectFieldController($scope) {
+function SelectFieldController($scope, $parse) {
+  var val = $scope.model[$scope.prop];
+  if (!val)
+    return;
+
+  var formatter = $parse($scope.formatter || 'label');
+
   if ($scope.multiple)
-    $scope.textDescription = ($scope.model[$scope.prop] || []).map(function(i) {
-      return i.text || '';
+    $scope.textDescription = val.map(function(item) {
+      return formatter($data.getObject(item._ref));
     }).join(', ');
   else
-    $scope.textDescription = ($scope.model[$scope.prop] || {}).text;
+    $scope.textDescription = formatter($data.getObject(val._ref));
 }
 
 
@@ -763,36 +864,36 @@ function randomPosition() {
 
 function DependencyGraphController($scope) {
   $scope.query = function(callback) {
-    var roles = model.role || {},
+    var roles = $data.getObjects('role'),
     nodes = [],
     links = [];
 
-    for (var key in roles) {
-      if (roles.hasOwnProperty(key)) {
-        var role = roles[key],
-        deps = role.dependencies || [];
+    for (var i = 0; i < roles.length; i++) {
+      var role = roles[i],
+          deps = role.dependencies || [];
 
-        if (!role.dependency_graph_pos) {
-          role = angular.copy(role);
-          role.dependency_graph_pos = randomPosition();
-          updateObject(role);
-        }
+      if (!role.dependency_graph_pos) {
+        role = angular.copy(role);
+        role.dependency_graph_pos = randomPosition();
+        updateObject(role);
+      }
 
-        nodes.push({
-          id: role._id,
-          pos: role.dependency_graph_pos,
-          label: role.label
+      console.log('pushing', role);
+
+      nodes.push({
+        id: role._id,
+        pos: role.dependency_graph_pos,
+        label: role.label
+      });
+
+      for (var j = 0; j < deps.length; j++) {
+        var dep = deps[j];
+        if (!dep)
+          continue;
+        links.push({
+          from: role._id,
+          to: dep._id
         });
-
-        for (var i = 0; i < deps.length; i++) {
-          var dep = deps[i];
-          if (!dep)
-            continue;
-          links.push({
-            from: role._id,
-            to: dep._id
-          });
-        }
       }
     }
 
@@ -831,37 +932,35 @@ function DependencyGraphController($scope) {
 
 function ConnectionGraphController($scope) {
   $scope.query = function(callback) {
-    var physical_components = model.physical_component || {},
+    var physical_components = $data.getObjects('physical_component');
     nodes = [],
     links = [];
 
-    for (var key in physical_components) {
-      if (physical_components.hasOwnProperty(key)) {
-        var physical_component = physical_components[key],
-        conns = physical_component.connections || [];
+    for (var i = 0; i < physical_components.length; i++) {
+      var physical_component = physical_components[i],
+          conns = physical_component.connections || [];
 
-        if (!physical_component.connection_graph_pos) {
-          physical_component = angular.copy(physical_component);
-          physical_component.connection_graph_pos = randomPosition();
-          updateObject(physical_component);
-        }
+      if (!physical_component.connection_graph_pos) {
+        physical_component = angular.copy(physical_component);
+        physical_component.connection_graph_pos = randomPosition();
+        updateObject(physical_component);
+      }
 
-        nodes.push({
-          id: physical_component._id,
-          pos: physical_component.connection_graph_pos,
-          label: physical_component.label
+      nodes.push({
+        id: physical_component._id,
+        pos: physical_component.connection_graph_pos,
+        label: physical_component.label
+      });
+
+      for (var j = 0; j < conns.length; j++) {
+        var conn = conns[j];
+        if (!conn)
+          continue;
+        links.push({
+          from: physical_component._id,
+          to: conn._id,
+          label: conn.label
         });
-
-        for (var i = 0; i < conns.length; i++) {
-          var conn = conns[i];
-          if (!conn)
-            continue;
-          links.push({
-            from: physical_component._id,
-            to: conn._id,
-            label: conn.label
-          });
-        }
       }
     }
 
@@ -906,37 +1005,35 @@ function ConnectionGraphController($scope) {
 
 function CompositionGraphController($scope) {
   $scope.query = function(callback) {
-    var physical_components = model.physical_component || {},
-    nodes = [],
-    links = [];
+    var physical_components = $data.getObjects('physical_component'),
+        nodes = [],
+        links = [];
 
-    for (var key in physical_components) {
-      if (physical_components.hasOwnProperty(key)) {
-        var physical_component = physical_components[key],
-        composition = physical_component.composition || [];
+    for (var i = 0; i < physical_components.length; i++) {
+      var physical_component = physical_components[i],
+          composition = physical_component.composition || [];
 
-        if (!physical_component.composition_graph_pos) {
-          physical_component = angular.copy(physical_component);
-          physical_component.composition_graph_pos = randomPosition();
-          updateObject(physical_component);
-        }
+      if (!physical_component.composition_graph_pos) {
+        physical_component = angular.copy(physical_component);
+        physical_component.composition_graph_pos = randomPosition();
+        updateObject(physical_component);
+      }
 
-        nodes.push({
-          id: physical_component._id,
-          pos: physical_component.composition_graph_pos,
-          label: physical_component.label
+      nodes.push({
+        id: physical_component._id,
+        pos: physical_component.composition_graph_pos,
+        label: physical_component.label
+      });
+
+      for (var j = 0; j < composition.length; j++) {
+        var item = composition[j];
+        if (!item)
+          continue;
+        links.push({
+          from: physical_component._id,
+          to: item._id,
+          label: item.label
         });
-
-        for (var i = 0; i < composition.length; i++) {
-          var item = composition[i];
-          if (!item)
-            continue;
-          links.push({
-            from: physical_component._id,
-            to: item._id,
-            label: item.label
-          });
-        }
       }
     }
 
@@ -975,9 +1072,9 @@ function CompositionGraphController($scope) {
 
 function MatrixController($scope, $routeParams) {
   var _class = $routeParams['class'];
-  $scope.entity_actions = objectValues(model.entity_action);
-  $scope.variables = model.variable;
-  $scope.items = objectValues(model[_class]);
+  $scope.entity_actions = $data.getObjects('entity_action');
+  $scope.variables = $data.getObjects('variable');
+  $scope.items = $data.getObjects('_class');
 }
 
 
