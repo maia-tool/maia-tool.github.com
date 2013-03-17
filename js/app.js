@@ -694,7 +694,7 @@ function validate($scope, item) {
   return !$scope.errors.length;
 }
 
-function ListFormController($scope, $rootScope, $data, $element) {
+function ListFormController($scope, $rootScope, $data, $dialog, $element) {
   if ($scope.item._id)
     $scope.mode = 'view';
   else
@@ -754,15 +754,26 @@ function ListFormController($scope, $rootScope, $data, $element) {
     if ($scope.mode === 'view')
       return;
 
-    $data.deleteObject($scope.item);
+    openConfirmDialog($dialog, {
+      title: 'Confirm delete',
+      question: 'Are you sure you want to delete ' +
+                $scope.originalItem._class + ' ' +
+                "'" + $scope.originalItem.label + "'?",
+      callback: function(result) {
+        if (!result)
+          return;
 
-    delete $scope.item;
-    delete $scope.originalItem;
-    $scope.mode = 'view';
+        $data.deleteObject($scope.item);
 
-    $event && $event.stopPropagation();
-    $event && $event.preventDefault();
-  }
+        delete $scope.item;
+        delete $scope.originalItem;
+        $scope.mode = 'view';
+
+        $event && $event.stopPropagation();
+        $event && $event.preventDefault();
+      }
+    });
+  };
 
   $scope.$on('openRecord', function() {
     $scope.revert();
