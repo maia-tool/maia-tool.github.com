@@ -642,6 +642,36 @@ function openEditDialog($dialog, $data, options) {
 }
 
 
+function openConfirmDialog($dialog, options) {
+  function DialogController($scope, dialog) {
+    $scope.title = options.title;
+    $scope.question = options.question;
+
+    $scope.ok = function() {
+      dialog.close(true);
+    };
+
+    $scope.cancel = function() {
+      dialog.close(false);
+    };
+  }
+
+  var d = $dialog.dialog({
+    backdrop: true,
+    keyboard: true,
+    backdropClick: false,
+    backdropFade: true,
+    modalClass: 'modal bounceInDown animated',
+    templateUrl: 'templates/confirm_dialog.html',
+    controller: DialogController
+  });
+
+  d.open().then(function(result) {
+    options.callback(result);
+  });
+}
+
+
 function labelValidator(item) {
   if (!item.label)
     return 'Label may not be empty.';
