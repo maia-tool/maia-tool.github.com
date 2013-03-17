@@ -371,7 +371,7 @@ app.directive('maiaSelect', function($dialog, $parse, $interpolate, $data) {
 
                   if (creatorDialog) {
                     scope.$apply(function() {
-                      openDialog($dialog, $data, {
+                      openEditDialog($dialog, $data, {
                         item: item,
                         callback: function(item) {
                           if (!item)
@@ -599,7 +599,7 @@ function ListController($scope, $routeParams, $data) {
 }
 
 
-function openDialog($dialog, $data, options) {
+function openEditDialog($dialog, $data, options) {
   function DialogController($scope, dialog) {
     $scope.item = options.item;
     $scope.type = options.type;
