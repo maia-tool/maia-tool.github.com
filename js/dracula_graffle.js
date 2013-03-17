@@ -123,16 +123,32 @@ Raphael.fn.connection = function(obj1, obj2, style) {
       var length = edge.fg.getTotalLength(),
           pos1 = edge.fg.getPointAtLength(20),
           pos2 = edge.fg.getPointAtLength(length - 20);
-      (this.scissors1 || (this.scissors1 = selfRef.text(pos1.x, pos1.y, "\u2702"))).attr({
-        fill: "#f00",
-        "font-size": "24px",
-        'opacity': 0
-      });
-      (this.scissors2 || (this.scissors2 = selfRef.text(pos2.x, pos2.y, "\u2702"))).attr({
-        fill: "#f00",
-        "font-size": "24px",
-        'opacity': 0
-      });
+      if (!this.scissors1) {
+        this.scissors1 = selfRef.text(pos1.x, pos1.y, "\u2702");
+        this.scissors1.attr({
+          fill: '#f00',
+          'font-size': '24px',
+          'opacity': 0
+        });
+      } else {
+        this.scissors1.attr({
+          x: pos1.x,
+          y: pos1.y,
+        });
+      }
+      if (!this.scissors2) {
+        this.scissors2 = selfRef.text(pos2.x, pos2.y, '\u2702');
+        this.scissors2.attr({
+          fill: '#f00',
+          'font-size': '24px',
+          'opacity': 0
+        });
+      } else {
+        this.scissors2.attr({
+          x: pos2.x,
+          y: pos2.y
+        });
+      }
     },
 
     remove: function() {
