@@ -899,7 +899,7 @@ function DependencyGraphController($scope, $data) {
           continue;
         links.push({
           from: role._id,
-          to: dep._id
+          to: dep._ref
         });
       }
     }
@@ -913,7 +913,7 @@ function DependencyGraphController($scope, $data) {
       return;
     if (!from.dependencies)
       from.dependencies = [];
-    from.dependencies.push({_id: to});
+    from.dependencies.push({_ref: to});
     $data.updateObject(from);
   };
 
@@ -922,7 +922,7 @@ function DependencyGraphController($scope, $data) {
     if (!from || !from.dependencies)
       return;
     for (var i = from.dependencies.length - 1; i >= 0; i--) {
-      if (from.dependencies[i]._id == to)
+      if (from.dependencies[i]._ref == to)
         from.dependencies.splice(i, 1);
     }
     $data.updateObject(from);
@@ -965,7 +965,7 @@ function ConnectionGraphController($scope, $data) {
           continue;
         links.push({
           from: physical_component._id,
-          to: conn._id,
+          to: conn._ref,
           label: conn.label
         });
       }
@@ -980,7 +980,7 @@ function ConnectionGraphController($scope, $data) {
       return;
     if (!from.connections)
       from.connections = [];
-    from.connections.push({_id: to, label: label});
+    from.connections.push({_ref: to, label: label});
     $data.updateObject(from);
   };
 
@@ -989,7 +989,7 @@ function ConnectionGraphController($scope, $data) {
     if (!from || !from.connections)
       return;
     for (var i = from.connections.length - 1; i >= 0; i--) {
-      if (from.connections[i]._id == to)
+      if (from.connections[i]._ref == to)
         from.connections.splice(i, 1);
     }
     $data.updateObject(from);
@@ -1038,7 +1038,7 @@ function CompositionGraphController($scope, $data) {
           continue;
         links.push({
           from: physical_component._id,
-          to: item._id,
+          to: item._ref,
           label: item.label
         });
       }
@@ -1053,7 +1053,7 @@ function CompositionGraphController($scope, $data) {
       return;
     if (!from.composition)
       from.composition = [];
-    from.composition.push({_id: to});
+    from.composition.push({_ref: to});
     $data.updateObject(from);
   };
 
@@ -1062,7 +1062,7 @@ function CompositionGraphController($scope, $data) {
     if (!from || !from.composition)
       return;
     for (var i = from.composition.length - 1; i >= 0; i--) {
-      if (from.composition[i]._id == to)
+      if (from.composition[i]._ref == to)
         from.composition.splice(i, 1);
     }
     $data.updateObject(from);
