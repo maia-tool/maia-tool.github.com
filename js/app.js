@@ -536,24 +536,24 @@ app.directive('maiaGraph', function($dialog, $parse, $interpolate) {
           g.layoutMaxX = 1000;
           g.layoutMaxY = 1000;
 
-          g.bind('movenode', function(args) {
+          g.onmovenode = function(args) {
             onMove(args.node.id, {x: args.x, y: args.y});
-          });
+          };
 
-          g.bind('createedge', function(args) {
+          g.oncreateedge = function(args) {
             onLink(args.fromNode.id, args.toNode.id);
             delayedUpdate();
-          });
+          };
 
-          g.bind('destroyedge', function(args) {
+          g.ondestroyedge = function(args) {
             onUnlink(args.fromNode.id, args.toNode.id);
             delayedUpdate();
-          });
+          };
 
-          g.bind('changeedgelabel', function(args) {
+          g.onchangeedgelabel = function(args) {
             onLink(args.fromNode.id, args.toNode.id, args.label || '');
             delayedUpdate();
-          });
+          };
 
           query(function(result) {
             var nodes = result.nodes || [],

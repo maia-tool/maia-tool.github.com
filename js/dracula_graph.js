@@ -100,7 +100,6 @@ Graph.prototype = {
     }
   }
 };
-_.extend(Graph.prototype, Backbone.Events);
 
 /*
  * Node
@@ -288,12 +287,14 @@ Graph.Renderer.Raphael.prototype = {
         point = [bbox.x + bbox.width / 2, bbox.y + bbox.height / 2];
         var layoutPoint = self.translateReverse(point);
 
-        self.graph.trigger('movenode', {
-          id: node.id,
-          x: layoutPoint[0],
-          y: layoutPoint[1],
-          node: node
-        });
+        if (self.graph.onmovenode) {
+          self.graph.onmovenode({
+            id: node.id,
+            x: layoutPoint[0],
+            y: layoutPoint[1],
+            node: node
+          });
+        }
       }
 
       el.bind('mousemove', mousemove);
@@ -345,9 +346,10 @@ Graph.Renderer.Raphael.prototype = {
         el.unbind('mouseup', mouseup);
 
         var end = r.getElementByPoint(event.clientX, event.clientY);
-        if (end && end.set && end.set.node) {
+        if (end && end.set && end.set.node &&
+            self.graph.oncreateedge) {
           var endNode = end.set.node;
-          self.graph.trigger('createedge', {
+          self.graph.oncreateedge({
             fromNode: node,
             toNode: endNode,
             fromId: node.id,
@@ -399,8 +401,9 @@ Graph.Renderer.Raphael.prototype = {
 
         input.blur(function() {
           var newLabel = input.val();
-          if (newLabel != edge.style.label) {
-            self.graph.trigger('changeedgelabel', {
+          if (newLabel != edge.style.label &&
+              self.graph.onchangeedgelabel) {
+            self.graph.onchangeedgelabel({
               fromNode: edge.source,
               toNode: edge.target,
               fromId: edge.source.id,
@@ -427,13 +430,15 @@ Graph.Renderer.Raphael.prototype = {
         }, 200);
       });
       scissors.click(function() {
-        self.graph.trigger('destroyedge', {
-          fromNode: edge.source,
-          toNode: edge.target,
-          fromId: edge.source.id,
-          toId: edge.source.id,
-          edge: edge.style
-        });
+        if (self.graph.ondestroyedge) {
+          self.graph.ondestroyedge({
+            fromNode: edge.source,
+            toNode: edge.target,
+            fromId: edge.source.id,
+            toId: edge.source.id,
+            edge: edge.style
+          });
+        }
       });
     }
     edge.connection.scissors1 && bindScissors(edge, edge.connection.scissors1);
