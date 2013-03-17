@@ -72,7 +72,7 @@ app.directive('selectField', function() {
   };
 });
 
-var $data = new (function() {
+app.service('$data', function() {
   var self = this;
 
   var byId = {};
@@ -202,20 +202,8 @@ var $data = new (function() {
   this.updateObject = updateObject;
 
   loadFromLocalStorage();
-})();
+});
 
-
-function updateObject(obj, callback) {
-  angular.injector(['ng']).invoke(function($rootScope) {
-    $rootScope.$apply(function() {
-      $data.updateObject(obj, callback);
-    });
-  });
-}
-
-function getObject(id, type) {
-  return $data.getObject(id);
-}
 
 /*
 app.directive('field', function() {
@@ -240,7 +228,7 @@ function objectValues(obj) {
 
 
 
-angular.module('maia').directive('maiaSelect', function($dialog, $parse, $interpolate) {
+angular.module('maia').directive('maiaSelect', function($dialog, $parse, $interpolate, $data) {
   return {
     require: '?ngModel',
     compile: function(tElm, tAttrs) {
@@ -268,7 +256,7 @@ angular.module('maia').directive('maiaSelect', function($dialog, $parse, $interp
         maxItems = attrs.maxItems || scope.$eval(attrs.maxItemsBinding);
 
         var find = function(val) {
-          return getObject(val._ref);
+          return $data.getObject(val._ref);
         };
 
         var map = scope.$eval(attrs.maiaMap) || function(item) {
@@ -315,7 +303,7 @@ angular.module('maia').directive('maiaSelect', function($dialog, $parse, $interp
 
               if (creatorDialog) {
                 scope.$apply(function() {
-                  openDialog($dialog, {
+                  openDialog($dialog, $data, {
                     item: item,
                     callback: function(item) {
                       if (!item)
@@ -327,7 +315,7 @@ angular.module('maia').directive('maiaSelect', function($dialog, $parse, $interp
                   });
                 });
               } else {
-                updateObject(item, function(item) {
+                $data.updateObject(item, function(item) {
                   callback(map(item));
                 });
               }
@@ -529,7 +517,7 @@ angular.module('maia').directive('maiaGraph', function($dialog, $parse, $interpo
 });
 
 
-function ListController($scope, $routeParams) {
+function ListController($scope, $routeParams, $data) {
   var _class = $routeParams['class'];
   $scope._class = _class;
   $scope.items = $data.getObjects(_class);
@@ -541,7 +529,7 @@ function ListController($scope, $routeParams) {
 }
 
 
-function openDialog($dialog, options) {
+function openDialog($dialog, $data, options) {
   function DialogController($scope, dialog) {
     $scope.item = options.item;
     $scope.type = options.type;
@@ -558,7 +546,7 @@ function openDialog($dialog, options) {
         return;
       }
 
-      updateObject($scope.item, function(savedItem) {
+      $data.updateObject($scope.item, function(savedItem) {
         dialog.close(savedItem);
       });
     };
@@ -606,7 +594,7 @@ function validate($scope, item) {
   return !$scope.errors.length;
 }
 
-function ListFormController($scope, $rootScope, $element) {
+function ListFormController($scope, $rootScope, $data, $element) {
   if ($scope.item._id)
     $scope.mode = 'view';
   else
@@ -639,7 +627,7 @@ function ListFormController($scope, $rootScope, $element) {
       return;
     }
 
-    updateObject($scope.item, function(savedObject) {
+    $data.updateObject($scope.item, function(savedObject) {
       $scope.item = savedObject;
     });
     $scope.mode = 'view';
@@ -667,7 +655,7 @@ function ListFormController($scope, $rootScope, $element) {
   });
 }
 
-function NewRecordController($scope, $rootScope, $element) {
+function NewRecordController($scope, $rootScope, $data, $element) {
   $scope.mode = 'view';
 
   $scope.validators = [];
@@ -696,7 +684,7 @@ function NewRecordController($scope, $rootScope, $element) {
       return;
     }
 
-    updateObject($scope.item);
+    $data.updateObject($scope.item);
     delete $scope.item;
     $scope.mode = 'view';
 
@@ -740,7 +728,7 @@ app.controller('TestController', function($scope) {
 });
 */
 
-function EntityActionRecordController($scope) {
+function EntityActionRecordController($scope, $data) {
   $scope.validators.push(labelValidator);
 
   function filter(item, term) {
@@ -771,7 +759,7 @@ function EntityActionRecordController($scope) {
     var val = $scope.item.performer;
     var performer, results;
 
-    switch (val && val._ref && (performer = getObject(val._ref)) && performer._class) {
+    switch (val && val._ref && (performer = $data.getObject(val._ref)) && performer._class) {
       case 'agent':
         results = performer.intrinsic_capabilities;
         break;
@@ -796,7 +784,7 @@ function EntityActionRecordController($scope) {
     var val = $scope.item.performer;
     var performer, results;
 
-    if (val && val._ref && (performer = getObject(val._ref)) && performer._class === 'agent')
+    if (val && val._ref && (performer = $data.getObject(val._ref)) && performer._class === 'agent')
       results = objectValues(performer.decision_making_criteria || {})
 
     results = (results || []).map(function(item) {
@@ -810,7 +798,7 @@ function EntityActionRecordController($scope) {
 }
 
 
-function VariableComputationController($scope) {
+function VariableComputationController($scope, $data) {
   function filter(item, term) {
     if (!item.text)
       return false;
@@ -838,7 +826,7 @@ function VariableComputationController($scope) {
 }
 
 
-function SelectFieldController($scope, $parse) {
+function SelectFieldController($scope, $data, $parse) {
   var val = $scope.model[$scope.prop];
   if (!val)
     return;
@@ -858,7 +846,7 @@ function randomPosition() {
   return {x: Math.random() * 1000,y: Math.random() * 1000};
 }
 
-function DependencyGraphController($scope) {
+function DependencyGraphController($scope, $data) {
   $scope.query = function(callback) {
     var roles = $data.getObjects('role'),
     nodes = [],
@@ -871,7 +859,7 @@ function DependencyGraphController($scope) {
       if (!role.dependency_graph_pos) {
         role = angular.copy(role);
         role.dependency_graph_pos = randomPosition();
-        updateObject(role);
+        $data.updateObject(role);
       }
 
       nodes.push({
@@ -895,36 +883,36 @@ function DependencyGraphController($scope) {
   }
 
   $scope.onLink = function(from, to) {
-    var from = angular.copy(getObject(from, 'role'));
+    var from = angular.copy($data.getObject(from, 'role'));
     if (!from)
       return;
     if (!from.dependencies)
       from.dependencies = [];
     from.dependencies.push({_id: to});
-    updateObject(from);
+    $data.updateObject(from);
   }
 
   $scope.onUnlink = function(from, to) {
-    var from = angular.copy(getObject(from, 'role'));
+    var from = angular.copy($data.getObject(from, 'role'));
     if (!from || !from.dependencies)
       return;
     for (var i = from.dependencies.length - 1; i >= 0; i--) {
       if (from.dependencies[i]._id == to)
         from.dependencies.splice(i, 1);
     }
-    updateObject(from);
+    $data.updateObject(from);
   }
 
   $scope.onMove = function(id, pos) {
-    var obj = angular.copy(getObject(id, 'role'));
+    var obj = angular.copy($data.getObject(id, 'role'));
     if (!obj)
       return;
     obj.dependency_graph_pos = pos;
-    updateObject(obj);
+    $data.updateObject(obj);
   }
 }
 
-function ConnectionGraphController($scope) {
+function ConnectionGraphController($scope, $data) {
   $scope.query = function(callback) {
     var physical_components = $data.getObjects('physical_component');
     nodes = [],
@@ -937,7 +925,7 @@ function ConnectionGraphController($scope) {
       if (!physical_component.connection_graph_pos) {
         physical_component = angular.copy(physical_component);
         physical_component.connection_graph_pos = randomPosition();
-        updateObject(physical_component);
+        $data.updateObject(physical_component);
       }
 
       nodes.push({
@@ -962,24 +950,24 @@ function ConnectionGraphController($scope) {
   }
 
   $scope.onLink = function(from, to, label) {
-    var from = angular.copy(getObject(from, 'physical_component'));
+    var from = angular.copy($data.getObject(from, 'physical_component'));
     if (!from)
       return;
     if (!from.connections)
       from.connections = [];
     from.connections.push({_id: to,label: label});
-    updateObject(from);
+    $data.updateObject(from);
   }
 
   $scope.onUnlink = function(from, to) {
-    var from = angular.copy(getObject(from, 'physical_component'));
+    var from = angular.copy($data.getObject(from, 'physical_component'));
     if (!from || !from.connections)
       return;
     for (var i = from.connections.length - 1; i >= 0; i--) {
       if (from.connections[i]._id == to)
         from.connections.splice(i, 1);
     }
-    updateObject(from);
+    $data.updateObject(from);
   }
 
   $scope.onChangeLink = function(from, to, label) {
@@ -988,16 +976,16 @@ function ConnectionGraphController($scope) {
   }
 
   $scope.onMove = function(id, pos) {
-    var obj = angular.copy(getObject(id, 'physical_component'));
+    var obj = angular.copy($data.getObject(id, 'physical_component'));
     if (!obj)
       return;
     obj.connection_graph_pos = pos;
-    updateObject(obj);
+    $data.updateObject(obj);
   }
 }
 
 
-function CompositionGraphController($scope) {
+function CompositionGraphController($scope, $data) {
   $scope.query = function(callback) {
     var physical_components = $data.getObjects('physical_component'),
         nodes = [],
@@ -1010,7 +998,7 @@ function CompositionGraphController($scope) {
       if (!physical_component.composition_graph_pos) {
         physical_component = angular.copy(physical_component);
         physical_component.composition_graph_pos = randomPosition();
-        updateObject(physical_component);
+        $data.updateObject(physical_component);
       }
 
       nodes.push({
@@ -1035,36 +1023,36 @@ function CompositionGraphController($scope) {
   }
 
   $scope.onLink = function(from, to) {
-    var from = angular.copy(getObject(from, 'physical_component'));
+    var from = angular.copy($data.getObject(from, 'physical_component'));
     if (!from)
       return;
     if (!from.composition)
       from.composition = [];
     from.composition.push({_id: to});
-    updateObject(from);
+    $data.updateObject(from);
   }
 
   $scope.onUnlink = function(from, to) {
-    var from = angular.copy(getObject(from, 'physical_component'));
+    var from = angular.copy($data.getObject(from, 'physical_component'));
     if (!from || !from.composition)
       return;
     for (var i = from.composition.length - 1; i >= 0; i--) {
       if (from.composition[i]._id == to)
         from.composition.splice(i, 1);
     }
-    updateObject(from);
+    $data.updateObject(from);
   }
 
   $scope.onMove = function(id, pos) {
-    var obj = angular.copy(getObject(id, 'physical_component'));
+    var obj = angular.copy($data.getObject(id, 'physical_component'));
     if (!obj)
       return;
     obj.composition_graph_pos = pos;
-    updateObject(obj);
+    $data.updateObject(obj);
   }
 }
 
-function MatrixController($scope, $routeParams) {
+function MatrixController($scope, $data, $routeParams) {
   var _class = $routeParams['class'];
   $scope.entity_actions = $data.getObjects('entity_action');
   $scope.variables = $data.getObjects('variable');
