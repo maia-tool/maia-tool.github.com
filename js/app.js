@@ -216,12 +216,11 @@ app.service('$data', function() {
       if (!list)
         list = byClass[tgt._class] = [];
 
-      list.push(obj);
+      list.push(tgt);
     }
 
     deferredSaveToLocalStorage();
 
-    obj._id = tgt._id;
     if (callback)
       callback(tgt);
   }
