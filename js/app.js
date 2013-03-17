@@ -207,11 +207,58 @@ app.service('$data', function() {
       callback(tgt);
   }
 
+  function deleteObject(obj) {
+    var id;
+
+    if (obj && typeof obj === 'object')
+      id = obj._id
+    else if (typeof obj === 'number' || typeof obj === 'string')
+      id = obj
+    else
+      throw new TypeError('First parameter should be an object or ' +
+                          'an object id');
+
+    obj = getObject(id);
+    if (!obj)
+      return;
+
+    var index = byClass[obj._class];
+
+    delete byId[id];
+    index.splice(index.indexOf(obj), 1);
+
+    // Delete all references to this object
+    for (var id2 in byId) {
+      if (!byId.hasOwnProperty(id2))
+        continue;
+
+      var obj2 = byId[id2];
+      for (var key in obj2) {
+        if (!obj2.hasOwnProperty(key))
+          continue;
+
+        var val = obj2[key];
+        if (val instanceof Array) {
+          for (var i = val.length - 1; i >= 0; i--) {
+            if (val[i] instanceof Object && val[i]._ref == id)
+              val.splice(i, 1);
+          }
+        } else if (val instanceof Object) {
+         if (val._ref == id)
+           delete obj2[key];
+        }
+      }
+    }
+
+    deferredSaveToLocalStorage();
+  }
+
   this.importData = importData;
   this.exportData = exportData;
   this.getObject = getObject;
   this.getObjects = getObjects;
   this.updateObject = updateObject;
+  this.deleteObject = deleteObject;
 
   loadFromLocalStorage();
 });
@@ -672,6 +719,20 @@ function ListFormController($scope, $rootScope, $data, $element) {
     $event && $event.stopPropagation();
     $event && $event.preventDefault();
   };
+
+  $scope.delete = function($event) {
+    if ($scope.mode === 'view')
+      return;
+
+    $data.deleteObject($scope.item);
+
+    delete $scope.item;
+    delete $scope.originalItem;
+    $scope.mode = 'view';
+
+    $event && $event.stopPropagation();
+    $event && $event.preventDefault();
+  }
 
   $scope.$on('openRecord', function() {
     $scope.revert();
