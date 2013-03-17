@@ -174,6 +174,25 @@ app.service('$data', function() {
     return list;
   }
 
+  function guid() {
+    var now = Date.now();
+
+    function x() {
+      var r = (Math.random() * 0x10) ^ (now & 0xf);
+      now >>>= 4;
+      return r.toString(16);
+    }
+
+    function y() {
+      var r = 0x08 + ((Math.random() * 0x4) ^ (now & 0x3));
+      now >>>= 2;
+      return r.toString(16);
+    }
+
+    return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/x/g, x)
+                                                 .replace(/y/, y);
+  }
+
   function updateObject(obj, callback) {
     var tgt;
 
@@ -190,7 +209,7 @@ app.service('$data', function() {
       }
     } else {
       tgt = angular.copy(obj);
-      tgt._id = Date.now();
+      tgt._id = guid();
       byId[tgt._id] = tgt;
 
       var list = byClass[tgt._class];
