@@ -115,10 +115,29 @@ td.align-right {
   border-bottom: none;
 }
 
-
 .card-form-create field .row-fluid,
 .card-form-update field .row-fluid {
   padding: 15px 0;
+}
+
+.card-button-bar {
+  height: 30px;
+  background-color: #f5f5f5;
+  border-radius: 0 0 6px 6px;
+  border-top: 1px solid #ddd;
+  box-shadow: 0 1px 0 #fff inset;
+  margin: 10px -20px -10px -20px;
+  padding: 10px 20px 12px 20px;
+}
+
+.card-button-group-left {
+  float: left;
+  text-align: left;
+}
+
+.card-button-group-right {
+  float: right;
+  text-align: right;
 }
 
 .modal field .row-fluid,

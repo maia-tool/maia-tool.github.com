@@ -18,9 +18,15 @@
           <ng-switch on="mode">
             <ng-include src="recordTemplateUrl"></ng-include>
             <span ng-switch-when="view"></span>
-            <div ng-switch-default>
-              <input class="btn btn-primary" type="submit" ng:click="save($event)" value="Save"/>
-              <input class="btn" type="submit" ng:click="revert($event)" value="Cancel"/>
+            <div ng-switch-default class="card-button-bar">
+              <div class="card-button-group-right">
+                <button class="btn btn-primary" ng:click="save($event)">
+                  <i class="icon-ok icon-white"></i> Save
+                </button>
+                <button class="btn" ng:click="revert($event)">
+                  <i class="icon-ban-circle"></i> Cancel
+                </button>
+              </div>
             </div>
           </ng-switch>
         </div>
@@ -37,9 +43,15 @@
           <div class="card-form card-form-{{mode}}">
             <div ng-repeat="error in errors" class="alert alert-error">{{error}}</div>
             <ng-include src="recordTemplateUrl"></ng-include>
-            <div>
-              <input class="btn btn-primary" type="submit" ng:click="save($event)" value="Save"/>
-              <input class="btn" type="submit" ng:click="revert($event)" value="Cancel"/>
+            <div class="card-button-bar">
+              <div class="card-button-group-right">
+                <button class="btn btn-primary" ng:click="save($event)">
+                  <i class="icon-ok icon-white"></i> Save
+                </button>
+                <button class="btn" ng:click="revert($event)">
+                  <i class="icon-ban-circle"></i> Cancel
+                </button>
+              </div>
             </div>
           </div>
         </div>
