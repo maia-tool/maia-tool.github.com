@@ -188,8 +188,6 @@ var $data = new (function() {
       list.push(obj);
     }
 
-    console.log(tgt);
-
     deferredSaveToLocalStorage();
 
     obj._id = tgt._id;
@@ -274,12 +272,10 @@ angular.module('maia').directive('maiaSelect', function($dialog, $parse, $interp
         };
 
         var map = scope.$eval(attrs.maiaMap) || function(item) {
-          console.log("mapping", item);
           return {id: item._id,text: formatter(item) || ''}
         };
 
         var makeRef = scope.$eval(attrs.maiaDemap) || function(val) {
-           console.log("demapping", val);
            return { _ref: val.id };
         };
 
@@ -877,8 +873,6 @@ function DependencyGraphController($scope) {
         role.dependency_graph_pos = randomPosition();
         updateObject(role);
       }
-
-      console.log('pushing', role);
 
       nodes.push({
         id: role._id,

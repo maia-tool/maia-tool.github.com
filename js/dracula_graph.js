@@ -391,8 +391,6 @@ Graph.Renderer.Raphael.prototype = {
             parent = $(el).offsetParent(),
             position = $(el).position();
 
-        console.log(position);
-
         var input = $('<input type="text" />').css({
           'position': 'absolute',
           'top': (position.top + bbox.y) + 'px',
@@ -402,7 +400,6 @@ Graph.Renderer.Raphael.prototype = {
         input.blur(function() {
           var newLabel = input.val();
           if (newLabel != edge.style.label) {
-            console.log(edge);
             self.graph.trigger('changeedgelabel', {
               fromNode: edge.source,
               toNode: edge.target,
@@ -631,13 +628,6 @@ Graph.Layout.Ordered.prototype = {
   }
 };
 
-/*
- * usefull JavaScript extensions,
- */
-
-function log(a) {
-  console.log && console.log(a);
-}
 
 /* For IE */
 if (!Array.prototype.forEach) {
