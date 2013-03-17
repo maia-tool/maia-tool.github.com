@@ -3,12 +3,12 @@ var app = angular.module('maia', ['ui', 'ui.bootstrap', 'maia']);
 app.config(function($routeProvider, $locationProvider) {
   $routeProvider.when('/list/:class', {
     templateUrl: 'templates/list.html',
-    controller: ListController,
+    controller: ListController
   });
 
   $routeProvider.when('/matrix/:class', {
     templateUrl: 'templates/matrix.html',
-    controller: MatrixController,
+    controller: MatrixController
   });
 
   $routeProvider.when('/graph/dependency', {
@@ -46,7 +46,7 @@ app.directive('textField', function() {
     restrict: 'E',
     transclude: false,
     priority: 100,
-    scope: {label: '@',model: '=',prop: '@',mode: '='},
+    scope: {label: '@', model: '=', prop: '@', mode: '='},
     templateUrl: 'templates/text-field.html'
   };
 });
@@ -56,7 +56,7 @@ app.directive('pickField', function() {
     restrict: 'E',
     transclude: false,
     priority: 100,
-    scope: {label: '@',model: '=',prop: '@',options: '@',mode: '='},
+    scope: {label: '@', model: '=', prop: '@', options: '@', mode: '='},
     templateUrl: 'templates/pick-field.html'
   };
 });
@@ -67,7 +67,19 @@ app.directive('selectField', function() {
     restrict: 'E',
     transclude: false,
     priority: 100,
-    scope: {label: '@',model: '=',prop: '@',mode: '=',type: '@',multiple: '@',formatter: '@',creator: '@',creatorDialog: '@',query: '=',maxItems: '@'},
+    scope: {
+      label: '@',
+      model: '=',
+      prop: '@',
+      mode: '=',
+      type: '@',
+      multiple: '@',
+      formatter: '@',
+      creator: '@',
+      creatorDialog: '@',
+      query: '=',
+      maxItems: '@'
+    },
     templateUrl: 'templates/select-field.html'
   };
 });
@@ -169,7 +181,7 @@ app.service('$data', function() {
       if (tgt !== obj) {
         for (var key in tgt)
           if (tgt.hasOwnProperty(key) &&
-             !obj.hasOwnProperty(obj))
+              !obj.hasOwnProperty(obj))
             delete tgt[key];
 
           for (var key in obj)
@@ -227,53 +239,61 @@ function objectValues(obj) {
 }
 
 
-
-angular.module('maia').directive('maiaSelect', function($dialog, $parse, $interpolate, $data) {
+app.directive('maiaSelect', function($dialog, $parse, $interpolate, $data) {
   return {
     require: '?ngModel',
     compile: function(tElm, tAttrs) {
       var repeatOption,
-      repeatAttr,
-      isSelect = tElm.is('select');
+          repeatAttr,
+          watch,
+          isSelect = tElm.is('select');
 
       // Enable watching of the options dataset if in use
       if (tElm.is('select')) {
         repeatOption = tElm.find('option[ng-repeat], option[data-ng-repeat]');
 
         if (repeatOption.length) {
-          repeatAttr = repeatOption.attr('ng-repeat') || repeatOption.attr('data-ng-repeat');
+          repeatAttr = repeatOption.attr('ng-repeat') ||
+                       repeatOption.attr('data-ng-repeat');
           watch = jQuery.trim(repeatAttr.split('|')[0]).split(' ').pop();
         }
       }
 
       return function(scope, elm, attrs, controller) {
         // instance-specific options
-        var isMultiple = attrs.hasOwnProperty('multiple') ? !!attrs.multiple : !!scope.$eval(tAttrs.multipleBinding),
-        type = attrs.maiaType || attrs.maiaClass || scope.$eval(attrs.maiaClassBinding || tAttrs.maiaTypeBinding),
-        formatter = $parse(attrs.formatter || scope.$eval(attrs.formatterBinding) || 'label'),
-        creator = $parse(attrs.creator || scope.$eval(attrs.creatorBinding) || 'text').assign,
-        creatorDialog = attrs.creatorDialog || scope.$eval(attrs.creatorDialogBinding),
-        maxItems = attrs.maxItems || scope.$eval(attrs.maxItemsBinding);
+        var isMultiple = attrs.hasOwnProperty('multiple') ? !!attrs.multiple :
+                !!scope.$eval(tAttrs.multipleBinding);
+        var type = attrs.maiaType || attrs.maiaClass ||
+                scope.$eval(attrs.maiaClassBinding || tAttrs.maiaTypeBinding);
+        var formatter = $parse(attrs.formatter ||
+                scope.$eval(attrs.formatterBinding) || 'label');
+        var creator = $parse(attrs.creator ||
+                scope.$eval(attrs.creatorBinding) || 'text').assign;
+        var creatorDialog = attrs.creatorDialog ||
+                scope.$eval(attrs.creatorDialogBinding);
+        var maxItems = attrs.maxItems || scope.$eval(attrs.maxItemsBinding);
 
         var find = function(val) {
           return $data.getObject(val._ref);
         };
 
         var map = scope.$eval(attrs.maiaMap) || function(item) {
-          return {id: item._id,text: formatter(item) || ''}
+          return {id: item._id, text: formatter(item) || ''};
         };
 
         var makeRef = scope.$eval(attrs.maiaDemap) || function(val) {
-           return { _ref: val.id };
+          return { _ref: val.id };
         };
 
         var filter = scope.$eval(attrs.maiaFilter) || function(item, term) {
-          if (String(item.text || '').toLowerCase().indexOf(term.toLowerCase()) === -1)
+          var text = String(item.text || '').toLowerCase();
+          term = term.toLowerCase();
+          if (text.indexOf(term) === -1)
             return false;
-          if (String(item.text || '').toLowerCase() === term.toLowerCase())
+          if (text === term)
             return 'exact';
           return true;
-        }
+        };
 
         var getItems = function() {
           if (type.indexOf(',') === -1)
@@ -283,54 +303,56 @@ angular.module('maia').directive('maiaSelect', function($dialog, $parse, $interp
             results = results.concat($data.getObject(type));
           });
           return results;
-        }
+        };
 
-        var query = attrs.query || scope.$eval(attrs.queryBinding) || function(options) {
-          var haveExactMatch = false;
-          var results = getItems()
+        var query = attrs.query || scope.$eval(attrs.queryBinding) ||
+                    function(options) {
+              var haveExactMatch = false;
+              var results = getItems()
                         .map(map)
                         .filter(function(item) {
-                          var r = filter(item, options.term);
-                          if (r === 'exact')
-                            haveExactMatch = true;
-                          return r;
-                        });
-
-          if (!haveExactMatch && (options.term || creatorDialog)) {
-            var onSelect = function(data, callback) {
-              var item = {_class: type};
-              creator(item, data.term);
-
-              if (creatorDialog) {
-                scope.$apply(function() {
-                  openDialog($dialog, $data, {
-                    item: item,
-                    callback: function(item) {
-                      if (!item)
-                        return;
-                      callback(map(item));
-                    },
-                    type: type,
-                    templateUrl: 'templates/' + type + '.html'
+                    var r = filter(item, options.term);
+                    if (r === 'exact')
+                      haveExactMatch = true;
+                    return r;
                   });
-                });
-              } else {
-                $data.updateObject(item, function(item) {
-                  callback(map(item));
+
+              if (!haveExactMatch && (options.term || creatorDialog)) {
+                var onSelect = function(data, callback) {
+                  var item = {_class: type};
+                  creator(item, data.term);
+
+                  if (creatorDialog) {
+                    scope.$apply(function() {
+                      openDialog($dialog, $data, {
+                        item: item,
+                        callback: function(item) {
+                          if (!item)
+                            return;
+                          callback(map(item));
+                        },
+                        type: type,
+                        templateUrl: 'templates/' + type + '.html'
+                      });
+                    });
+                  } else {
+                    $data.updateObject(item, function(item) {
+                      callback(map(item));
+                    });
+                  }
+                };
+
+                results.push({
+                  id: '__new__',
+                  text: options.term ? "Create '" + options.term + "'..." :
+                      'Create...',
+                  term: options.term,
+                  onSelect: onSelect
                 });
               }
-            }
 
-            results.push({
-              id: '__new__',
-              text: options.term ? "Create '" + options.term + "'..." : "Create...",
-              term: options.term,
-              onSelect: onSelect
-            });
-          }
-
-          options.callback({results: results});
-        }
+              options.callback({results: results});
+            };
 
         var opts = {};
         opts.query = query;
@@ -368,8 +390,9 @@ angular.module('maia').directive('maiaSelect', function($dialog, $parse, $interp
           };
 
           if (!isSelect) {
-            // Set the view and model value and update the angular template manually for the ajax/multiple select2.
-            elm.bind("change", function() {
+            // Set the view and model value and update the angular template
+            // manually for the ajax/multiple select2.
+            elm.bind('change', function() {
               scope.$apply(function() {
                 var val = elm.select2('data');
                 if (isMultiple) {
@@ -401,10 +424,7 @@ angular.module('maia').directive('maiaSelect', function($dialog, $parse, $interp
         // Set initial value since Angular doesn't
         elm.val(scope.$eval(attrs.ngModel));
 
-        // Initialize the plugin late so that the injected DOM does not disrupt the template compiler
-        //setTimeout(function () {
         elm.select2(opts);
-        //});
 
         if (attrs.maxItemsBinding) {
           var binding = scope[attrs.maxItemsBinding];
@@ -422,7 +442,7 @@ angular.module('maia').directive('maiaSelect', function($dialog, $parse, $interp
 });
 
 
-angular.module('maia').directive('maiaGraph', function($dialog, $parse, $interpolate) {
+app.directive('maiaGraph', function($dialog, $parse, $interpolate) {
   return {
     compile: function(tElm, tAttrs) {
       return function(scope, elm, attrs, controller) {
@@ -452,7 +472,7 @@ angular.module('maia').directive('maiaGraph', function($dialog, $parse, $interpo
           g.layoutMaxY = 1000;
 
           g.bind('movenode', function(args) {
-            onMove(args.node.id, {x: args.x,y: args.y});
+            onMove(args.node.id, {x: args.x, y: args.y});
           });
 
           g.bind('createedge', function(args) {
@@ -472,7 +492,7 @@ angular.module('maia').directive('maiaGraph', function($dialog, $parse, $interpo
 
           query(function(result) {
             var nodes = result.nodes || [],
-            links = result.links || [];
+                links = result.links || [];
 
             for (var i = 0; i < nodes.length; i++) {
               var node = nodes[i];
@@ -481,7 +501,7 @@ angular.module('maia').directive('maiaGraph', function($dialog, $parse, $interpo
                 label: node.label,
                 layoutPosX: node.pos.x,
                 layoutPosY: node.pos.y,
-                color: node.color || "#00bf2f"
+                color: node.color || '#00bf2f'
               });
             }
 
@@ -496,7 +516,10 @@ angular.module('maia').directive('maiaGraph', function($dialog, $parse, $interpo
             }
 
             elm.empty();
-            (new Graph.Renderer.Raphael(attrs.id, g, $(elm).width(), 550)).draw();
+            (new Graph.Renderer.Raphael(attrs.id,
+                                        g,
+                                        $(elm).width(),
+                                        550)).draw();
 
             renderTimeout = false;
           });
@@ -541,7 +564,7 @@ function openDialog($dialog, $data, options) {
       dialog.modalEl.removeClass('bounceInDown animated shake');
       if (!validate($scope, $scope.item)) {
         setTimeout(function() {
-          dialog.modalEl.addClass('animated shake')
+          dialog.modalEl.addClass('animated shake');
         }, 0);
         return;
       }
@@ -553,7 +576,7 @@ function openDialog($dialog, $data, options) {
 
     $scope.cancel = function() {
       dialog.close();
-    }
+    };
   }
 
   var d = $dialog.dialog({
@@ -574,9 +597,9 @@ function openDialog($dialog, $data, options) {
 
 function labelValidator(item) {
   if (!item.label)
-    return "Label may not be empty."
+    return 'Label may not be empty.';
   if (!/^\w+/.test(item.label))
-    return "Label is not a valid identifier."
+    return 'Label is not a valid identifier.';
 }
 
 function validate($scope, item) {
@@ -618,12 +641,12 @@ function ListFormController($scope, $rootScope, $data, $element) {
     setTimeout(function() {
       $($element).scrollintoview();
     }, 50);
-  }
+  };
 
   $scope.save = function($event) {
     $scope.hasErrors = false;
     if (!validate($scope, $scope.item)) {
-      setTimeout(function() { $scope.$apply("hasErrors = true") }, 0);
+      setTimeout(function() { $scope.$apply('hasErrors = true') }, 0);
       return;
     }
 
@@ -634,7 +657,7 @@ function ListFormController($scope, $rootScope, $data, $element) {
 
     $event.stopPropagation();
     $event.preventDefault();
-  }
+  };
 
   $scope.revert = function($event) {
     if ($scope.mode === 'view')
@@ -648,7 +671,7 @@ function ListFormController($scope, $rootScope, $data, $element) {
 
     $event && $event.stopPropagation();
     $event && $event.preventDefault();
-  }
+  };
 
   $scope.$on('openRecord', function() {
     $scope.revert();
@@ -675,12 +698,12 @@ function NewRecordController($scope, $rootScope, $data, $element) {
     setTimeout(function() {
       $($element).scrollintoview();
     }, 50);
-  }
+  };
 
   $scope.save = function($event) {
     $scope.hasErrors = false;
     if (!validate($scope, $scope.item)) {
-      setTimeout(function() { $scope.$apply("hasErrors = true") }, 0);
+      setTimeout(function() { $scope.$apply('hasErrors = true') }, 0);
       return;
     }
 
@@ -690,7 +713,7 @@ function NewRecordController($scope, $rootScope, $data, $element) {
 
     $event.stopPropagation();
     $event.preventDefault();
-  }
+  };
 
   $scope.revert = function($event) {
     if ($scope.mode === 'view')
@@ -703,7 +726,7 @@ function NewRecordController($scope, $rootScope, $data, $element) {
 
     $event && $event.stopPropagation();
     $event && $event.preventDefault();
-  }
+  };
 
   $scope.$on('openNewRecord', function() {
     $scope.open();
@@ -732,9 +755,9 @@ function EntityActionRecordController($scope, $data) {
   $scope.validators.push(labelValidator);
 
   function filter(item, term) {
-    if (!item.text)
-      return false;
-    if (String(item.text || '').toLowerCase().indexOf(term.toLowerCase()) === -1)
+    var text = String(item.text || '').toLowerCase();
+    term = term.toLowerCase();
+    if (text.indexOf(term) === -1)
       return false;
     return true;
   }
@@ -753,13 +776,14 @@ function EntityActionRecordController($scope, $data) {
     });
 
     options.callback({results: results});
-  }
+  };
 
   $scope.queryActionBody = function(options) {
     var val = $scope.item.performer;
     var performer, results;
 
-    switch (val && val._ref && (performer = $data.getObject(val._ref)) && performer._class) {
+    switch (val && val._ref && (performer = $data.getObject(val._ref)) &&
+            performer._class) {
       case 'agent':
         results = performer.intrinsic_capabilities;
         break;
@@ -778,14 +802,15 @@ function EntityActionRecordController($scope, $data) {
     });
 
     options.callback({results: results});
-  }
+  };
 
   $scope.queryDecisionMaking = function(options) {
     var val = $scope.item.performer;
     var performer, results;
 
-    if (val && val._ref && (performer = $data.getObject(val._ref)) && performer._class === 'agent')
-      results = objectValues(performer.decision_making_criteria || {})
+    if (val && val._ref && (performer = $data.getObject(val._ref)) &&
+        performer._class === 'agent')
+      results = objectValues(performer.decision_making_criteria || {});
 
     results = (results || []).map(function(item) {
       return {id: item._ref, text: $data.getObject(item._ref).label};
@@ -794,15 +819,15 @@ function EntityActionRecordController($scope, $data) {
     });
 
     options.callback({results: results});
-  }
+  };
 }
 
 
 function VariableComputationController($scope, $data) {
   function filter(item, term) {
-    if (!item.text)
-      return false;
-    if (String(item.text || '').toLowerCase().indexOf(term.toLowerCase()) === -1)
+    var text = String(item.text || '').toLowerCase();
+    term = term.toLowerCase;
+    if (text.indexOf(term) === -1)
       return false;
     return true;
   }
@@ -822,7 +847,7 @@ function VariableComputationController($scope, $data) {
     });
 
     options.callback({results: results});
-  }
+  };
 }
 
 
@@ -843,14 +868,14 @@ function SelectFieldController($scope, $data, $parse) {
 
 
 function randomPosition() {
-  return {x: Math.random() * 1000,y: Math.random() * 1000};
+  return {x: Math.random() * 1000, y: Math.random() * 1000};
 }
 
 function DependencyGraphController($scope, $data) {
   $scope.query = function(callback) {
     var roles = $data.getObjects('role'),
-    nodes = [],
-    links = [];
+        nodes = [],
+        links = [];
 
     for (var i = 0; i < roles.length; i++) {
       var role = roles[i],
@@ -879,8 +904,8 @@ function DependencyGraphController($scope, $data) {
       }
     }
 
-    callback({nodes: nodes,links: links});
-  }
+    callback({nodes: nodes, links: links});
+  };
 
   $scope.onLink = function(from, to) {
     var from = angular.copy($data.getObject(from, 'role'));
@@ -890,7 +915,7 @@ function DependencyGraphController($scope, $data) {
       from.dependencies = [];
     from.dependencies.push({_id: to});
     $data.updateObject(from);
-  }
+  };
 
   $scope.onUnlink = function(from, to) {
     var from = angular.copy($data.getObject(from, 'role'));
@@ -901,7 +926,7 @@ function DependencyGraphController($scope, $data) {
         from.dependencies.splice(i, 1);
     }
     $data.updateObject(from);
-  }
+  };
 
   $scope.onMove = function(id, pos) {
     var obj = angular.copy($data.getObject(id, 'role'));
@@ -909,7 +934,7 @@ function DependencyGraphController($scope, $data) {
       return;
     obj.dependency_graph_pos = pos;
     $data.updateObject(obj);
-  }
+  };
 }
 
 function ConnectionGraphController($scope, $data) {
@@ -946,8 +971,8 @@ function ConnectionGraphController($scope, $data) {
       }
     }
 
-    callback({nodes: nodes,links: links});
-  }
+    callback({nodes: nodes, links: links});
+  };
 
   $scope.onLink = function(from, to, label) {
     var from = angular.copy($data.getObject(from, 'physical_component'));
@@ -955,9 +980,9 @@ function ConnectionGraphController($scope, $data) {
       return;
     if (!from.connections)
       from.connections = [];
-    from.connections.push({_id: to,label: label});
+    from.connections.push({_id: to, label: label});
     $data.updateObject(from);
-  }
+  };
 
   $scope.onUnlink = function(from, to) {
     var from = angular.copy($data.getObject(from, 'physical_component'));
@@ -968,12 +993,12 @@ function ConnectionGraphController($scope, $data) {
         from.connections.splice(i, 1);
     }
     $data.updateObject(from);
-  }
+  };
 
   $scope.onChangeLink = function(from, to, label) {
     $scope.onUnlink(from, to);
     $scope.onLink(from, to, label);
-  }
+  };
 
   $scope.onMove = function(id, pos) {
     var obj = angular.copy($data.getObject(id, 'physical_component'));
@@ -981,7 +1006,7 @@ function ConnectionGraphController($scope, $data) {
       return;
     obj.connection_graph_pos = pos;
     $data.updateObject(obj);
-  }
+  };
 }
 
 
@@ -1019,8 +1044,8 @@ function CompositionGraphController($scope, $data) {
       }
     }
 
-    callback({nodes: nodes,links: links});
-  }
+    callback({nodes: nodes, links: links});
+  };
 
   $scope.onLink = function(from, to) {
     var from = angular.copy($data.getObject(from, 'physical_component'));
@@ -1030,7 +1055,7 @@ function CompositionGraphController($scope, $data) {
       from.composition = [];
     from.composition.push({_id: to});
     $data.updateObject(from);
-  }
+  };
 
   $scope.onUnlink = function(from, to) {
     var from = angular.copy($data.getObject(from, 'physical_component'));
@@ -1041,7 +1066,7 @@ function CompositionGraphController($scope, $data) {
         from.composition.splice(i, 1);
     }
     $data.updateObject(from);
-  }
+  };
 
   $scope.onMove = function(id, pos) {
     var obj = angular.copy($data.getObject(id, 'physical_component'));
@@ -1049,7 +1074,7 @@ function CompositionGraphController($scope, $data) {
       return;
     obj.composition_graph_pos = pos;
     $data.updateObject(obj);
-  }
+  };
 }
 
 function MatrixController($scope, $data, $routeParams) {
@@ -1062,15 +1087,15 @@ function MatrixController($scope, $data, $routeParams) {
 
 function HelpController($scope, $location) {
   $scope.$watch(function() {
-    return $location.path()
+    return $location.path();
   }, function(path) {
     var m = /^\/(\w+)\/(\w+)(?:[\/?]|$)/.exec(path);
     if (m) {
-      $scope.helpUrl = 'help/' + m[1] + '-' + m[2] + '.html'
+      $scope.helpUrl = 'help/' + m[1] + '-' + m[2] + '.html';
     } else {
       $scope.helpUrl = undefined;
     }
-  })
+  });
 }
 
 function GenericRecordController($scope) {
