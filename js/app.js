@@ -304,7 +304,7 @@ function objectValues(obj) {
 }
 
 
-app.directive('maiaSelect', function($dialog, $parse, $interpolate, $data) {
+app.directive('foreignSelect', function($dialog, $parse, $interpolate, $data) {
   return {
     require: '?ngModel',
     compile: function(tElm, tAttrs) {
