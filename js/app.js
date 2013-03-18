@@ -987,8 +987,16 @@ function SelectFieldController($scope, $data, $parse) {
 }
 
 
-function randomPosition() {
-  return {x: Math.random() * 1000, y: Math.random() * 1000};
+function initGraphPosition(obj, prefix, $data) {
+  if ((!obj[prefix + '_x'] && obj[prefix + '_x'] !== 0) ||
+      (!obj[prefix + '_y'] && obj[prefix + '_y'] !== 0)) {
+    obj = angular.copy(obj);
+    obj[prefix + '_x'] = Math.random() * 1000;
+    obj[prefix + '_y'] = Math.random() * 1000;
+    $data.updateObject(obj);
+  }
+
+  return { x: obj[prefix + '_x'], y: obj[prefix + '_y'] };
 }
 
 function DependencyGraphController($scope, $data) {
@@ -1001,15 +1009,9 @@ function DependencyGraphController($scope, $data) {
       var role = roles[i],
           deps = role.dependencies || [];
 
-      if (!role.dependency_graph_pos) {
-        role = angular.copy(role);
-        role.dependency_graph_pos = randomPosition();
-        $data.updateObject(role);
-      }
-
       nodes.push({
         id: role._id,
-        pos: role.dependency_graph_pos,
+        pos: initGraphPosition(role, 'dependency_graph', $data),
         label: role.label
       });
 
@@ -1067,15 +1069,9 @@ function ConnectionGraphController($scope, $data) {
       var physical_component = physical_components[i],
           conns = physical_component.connections || [];
 
-      if (!physical_component.connection_graph_pos) {
-        physical_component = angular.copy(physical_component);
-        physical_component.connection_graph_pos = randomPosition();
-        $data.updateObject(physical_component);
-      }
-
       nodes.push({
         id: physical_component._id,
-        pos: physical_component.connection_graph_pos,
+        pos: initGraphPosition(physical_component, 'connection_graph', $data),
         label: physical_component.label
       });
 
@@ -1140,15 +1136,9 @@ function CompositionGraphController($scope, $data) {
       var physical_component = physical_components[i],
           composition = physical_component.composition || [];
 
-      if (!physical_component.composition_graph_pos) {
-        physical_component = angular.copy(physical_component);
-        physical_component.composition_graph_pos = randomPosition();
-        $data.updateObject(physical_component);
-      }
-
       nodes.push({
         id: physical_component._id,
-        pos: physical_component.composition_graph_pos,
+        pos: initGraphPosition(physical_component, 'composition_graph', $data),
         label: physical_component.label
       });
 
