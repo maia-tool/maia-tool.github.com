@@ -12,140 +12,140 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 */
 
 .animated {
-	-webkit-animation-fill-mode: both;
-	-moz-animation-fill-mode: both;
-	-ms-animation-fill-mode: both;
-	-o-animation-fill-mode: both;
-	animation-fill-mode: both;
-	-webkit-animation-duration: .667s;
-	-moz-animation-duration: .667s;
-	-ms-animation-duration: .667s;
-	-o-animation-duration: .667s;
-	animation-duration: .667s;
+  -webkit-animation-fill-mode: both;
+  -moz-animation-fill-mode: both;
+  -ms-animation-fill-mode: both;
+  -o-animation-fill-mode: both;
+  animation-fill-mode: both;
+  -webkit-animation-duration: .667s;
+  -moz-animation-duration: .667s;
+  -ms-animation-duration: .667s;
+  -o-animation-duration: .667s;
+  animation-duration: .667s;
 }
 
 .animated.hinge {
-	-webkit-animation-duration: 2s;
-	-moz-animation-duration: 2s;
-	-ms-animation-duration: 2s;
-	-o-animation-duration: 2s;
-	animation-duration: 2s;
+  -webkit-animation-duration: 2s;
+  -moz-animation-duration: 2s;
+  -ms-animation-duration: 2s;
+  -o-animation-duration: 2s;
+  animation-duration: 2s;
 }
 
 @-webkit-keyframes shake {
-	0%, 100% {-webkit-transform: translateX(0);}
-	10%, 30%, 50%, 70%, 90% {-webkit-transform: translateX(-10px);}
-	20%, 40%, 60%, 80% {-webkit-transform: translateX(10px);}
+  0%, 100% {-webkit-transform: translateX(0);}
+  10%, 30%, 50%, 70%, 90% {-webkit-transform: translateX(-10px);}
+  20%, 40%, 60%, 80% {-webkit-transform: translateX(10px);}
 }
 
 @-moz-keyframes shake {
-	0%, 100% {-moz-transform: translateX(0);}
-	10%, 30%, 50%, 70%, 90% {-moz-transform: translateX(-10px);}
-	20%, 40%, 60%, 80% {-moz-transform: translateX(10px);}
+  0%, 100% {-moz-transform: translateX(0);}
+  10%, 30%, 50%, 70%, 90% {-moz-transform: translateX(-10px);}
+  20%, 40%, 60%, 80% {-moz-transform: translateX(10px);}
 }
 
 @-o-keyframes shake {
-	0%, 100% {-o-transform: translateX(0);}
-	10%, 30%, 50%, 70%, 90% {-o-transform: translateX(-10px);}
-	20%, 40%, 60%, 80% {-o-transform: translateX(10px);}
+  0%, 100% {-o-transform: translateX(0);}
+  10%, 30%, 50%, 70%, 90% {-o-transform: translateX(-10px);}
+  20%, 40%, 60%, 80% {-o-transform: translateX(10px);}
 }
 
 @keyframes shake {
-	0%, 100% {transform: translateX(0);}
-	10%, 30%, 50%, 70%, 90% {transform: translateX(-10px);}
-	20%, 40%, 60%, 80% {transform: translateX(10px);}
+  0%, 100% {transform: translateX(0);}
+  10%, 30%, 50%, 70%, 90% {transform: translateX(-10px);}
+  20%, 40%, 60%, 80% {transform: translateX(10px);}
 }
 
 .shake {
-	-webkit-animation-name: shake;
-	-moz-animation-name: shake;
-	-o-animation-name: shake;
-	animation-name: shake;
+  -webkit-animation-name: shake;
+  -moz-animation-name: shake;
+  -o-animation-name: shake;
+  animation-name: shake;
 }
 
 @-webkit-keyframes bounceInDown {
-	0% {
-		opacity: 0;
-		-webkit-transform: translateY(-2000px);
-	}
+  0% {
+    opacity: 0;
+    -webkit-transform: translateY(-2000px);
+  }
 
-	60% {
-		opacity: 1;
-		-webkit-transform: translateY(30px);
-	}
+  60% {
+    opacity: 1;
+    -webkit-transform: translateY(30px);
+  }
 
-	80% {
-		-webkit-transform: translateY(-10px);
-	}
+  80% {
+    -webkit-transform: translateY(-10px);
+  }
 
-	100% {
-		-webkit-transform: translateY(0);
-	}
+  100% {
+    -webkit-transform: translateY(0);
+  }
 }
 
 @-moz-keyframes bounceInDown {
-	0% {
-		opacity: 0;
-		-moz-transform: translateY(-2000px);
-	}
+  0% {
+    opacity: 0;
+    -moz-transform: translateY(-2000px);
+  }
 
-	60% {
-		opacity: 1;
-		-moz-transform: translateY(30px);
-	}
+  60% {
+    opacity: 1;
+    -moz-transform: translateY(30px);
+  }
 
-	80% {
-		-moz-transform: translateY(-10px);
-	}
+  80% {
+    -moz-transform: translateY(-10px);
+  }
 
-	100% {
-		-moz-transform: translateY(0);
-	}
+  100% {
+    -moz-transform: translateY(0);
+  }
 }
 
 @-o-keyframes bounceInDown {
-	0% {
-		opacity: 0;
-		-o-transform: translateY(-2000px);
-	}
+  0% {
+    opacity: 0;
+    -o-transform: translateY(-2000px);
+  }
 
-	60% {
-		opacity: 1;
-		-o-transform: translateY(30px);
-	}
+  60% {
+    opacity: 1;
+    -o-transform: translateY(30px);
+  }
 
-	80% {
-		-o-transform: translateY(-10px);
-	}
+  80% {
+    -o-transform: translateY(-10px);
+  }
 
-	100% {
-		-o-transform: translateY(0);
-	}
+  100% {
+    -o-transform: translateY(0);
+  }
 }
 
 @keyframes bounceInDown {
-	0% {
-		opacity: 0;
-		transform: translateY(-2000px);
-	}
+  0% {
+    opacity: 0;
+    transform: translateY(-2000px);
+  }
 
-	60% {
-		opacity: 1;
-		transform: translateY(30px);
-	}
+  60% {
+    opacity: 1;
+    transform: translateY(30px);
+  }
 
-	80% {
-		transform: translateY(-10px);
-	}
+  80% {
+    transform: translateY(-10px);
+  }
 
-	100% {
-		transform: translateY(0);
-	}
+  100% {
+    transform: translateY(0);
+  }
 }
 
 .bounceInDown {
-	-webkit-animation-name: bounceInDown;
-	-moz-animation-name: bounceInDown;
-	-o-animation-name: bounceInDown;
-	animation-name: bounceInDown;
+  -webkit-animation-name: bounceInDown;
+  -moz-animation-name: bounceInDown;
+  -o-animation-name: bounceInDown;
+  animation-name: bounceInDown;
 }
