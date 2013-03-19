@@ -23,12 +23,13 @@
   </head>
   <body>
 
-<div class="navbar navbar-inverse navbar-fixed-top">
+<div class="navbar navbar-inverse navbar-fixed-top" ng-controller="NavbarController">
   <div class="navbar-inner">
     <div class="container">
       <ul class="nav">
         <li><a>Save</a></li>
         <li><a>Print</a></li>
+        <li><a ng-click="download()">Download</a></li>
       </ul>
     </div>
   </div>

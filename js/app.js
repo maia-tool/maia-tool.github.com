@@ -1216,3 +1216,12 @@ function GenericRecordController($scope) {
 function PlanRecordController($scope) {
   $scope.validators.push(labelValidator);
 }
+
+function NavbarController($scope, $data) {
+  $scope.download = function() {
+    var json = JSON.stringify($data.exportData(), null, 2);
+    var mime = "application/binary";
+    var dataUri = 'data:' + mime + ';charset=utf-8,' + encodeURIComponent(json);
+    window.location = dataUri;
+  }
+}
