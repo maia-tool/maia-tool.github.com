@@ -1,15 +1,16 @@
 <h1>Operational structure</h1>
 <p>
   The operational structure makes use of the concepts in the physical, constitutional and collective structures to provide the dynamics of the agent-based model.
+   Each simulation has exactly one action arena that is defined by a list of action situations, where each action situation describes the order in which a number of related entity actions take place using plan specifications.
 </p>
 
-<h1>Action Situation</h1>
+<h1>Plans</h1>
 <p>
-  The action situation component defines the overall operational procedure of the system. Each action situation is the placeholder for a set of related actions. Each action contains:
+   There are four different types of plans:
 </p>
 <ul>
-  <li>Precondition</li>
-  <li>Action body: The intrinsic capability of an agent, the institutional capability part of the role definition, or a physical component behaviour can all be considered as the actions of an action situation. It is the creativity of the modeller to groups related actions into relatively independent actions situations. In other words, the actions in an action situation are more coupled that the actions across multiple action situations. The decision about choosing a particular event as an action situation or only one action as part of an action situation highly depends on the level of detail we are planning to give to the agent-based model. If one action is big enough to be decomposed into many individual actions, it might be considered as an action situation.However, for a given action situation, more than one agent is involved even if they are taking the same role. </li>
-  <li>Physical Component: In action situation some physical components may be present. </li>
-  <li>Institutional Statement: Institutional statements usually hold in certain situations. The agents follow the statements if they are taking specific roles. </li>
+  <li>atomic plan: consists of a single entity action  (e.g., become unit boss). </li>
+  <li>sequence plan: consists of a set of plans that will be executed in the specified order (e.g., select employee, hire employee).  </li>
+  <li>alternative plan: consists of a set of plans form which one is selected randomly (with equal probability). </li>
+  <li>loop: consists of a plan that is repeated for as long as a condition holds (e.g., process old computers until there is none left). </li>
 </ul>
