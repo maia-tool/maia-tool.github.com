@@ -923,23 +923,6 @@ function EntityActionRecordController($scope, $data) {
 
     options.callback({results: results});
   };
-
-  $scope.queryDecisionMaking = function(options) {
-    var val = $scope.item.performer;
-    var performer, results;
-
-    if (val && val._ref && (performer = $data.getObject(val._ref)) &&
-        performer._class === 'agent')
-      results = objectValues(performer.decision_making_criteria || {});
-
-    results = (results || []).map(function(item) {
-      return {id: item._ref, text: $data.getObject(item._ref).label};
-    }).filter(function(option) {
-      return filter(option, options.term);
-    });
-
-    options.callback({results: results});
-  };
 }
 
 
