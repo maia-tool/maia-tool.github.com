@@ -1124,7 +1124,8 @@ function DependencyGraphController($scope, $data) {
           continue;
         links.push({
           from: role._id,
-          to: dep._ref
+          to: dep._ref,
+          label: dep.label
         });
       }
     }
@@ -1132,13 +1133,13 @@ function DependencyGraphController($scope, $data) {
     callback({nodes: nodes, links: links});
   };
 
-  $scope.onLink = function(from, to) {
+  $scope.onLink = function(from, to, label) {
     var from = angular.copy($data.getObject(from, 'role'));
     if (!from)
       return;
     if (!from.dependencies)
       from.dependencies = [];
-    from.dependencies.push({_ref: to});
+    from.dependencies.push({_ref: to, label: label});
     $data.updateObject(from);
   };
 
@@ -1151,6 +1152,11 @@ function DependencyGraphController($scope, $data) {
         from.dependencies.splice(i, 1);
     }
     $data.updateObject(from);
+  };
+
+  $scope.onChangeLink = function(from, to, label) {
+    $scope.onUnlink(from, to);
+    $scope.onLink(from, to, label);
   };
 
   $scope.onMove = function(id, pos) {
@@ -1262,13 +1268,13 @@ function CompositionGraphController($scope, $data) {
     callback({nodes: nodes, links: links});
   };
 
-  $scope.onLink = function(from, to) {
+  $scope.onLink = function(from, to, label) {
     var from = angular.copy($data.getObject(from, 'physical_component'));
     if (!from)
       return;
     if (!from.composition)
       from.composition = [];
-    from.composition.push({_ref: to});
+    from.composition.push({_ref: to, label: label});
     $data.updateObject(from);
   };
 
@@ -1281,6 +1287,11 @@ function CompositionGraphController($scope, $data) {
         from.composition.splice(i, 1);
     }
     $data.updateObject(from);
+  };
+
+  $scope.onChangeLink = function(from, to, label) {
+    $scope.onUnlink(from, to);
+    $scope.onLink(from, to, label);
   };
 
   $scope.onMove = function(id, pos) {
