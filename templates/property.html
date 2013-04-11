@@ -1,6 +1,4 @@
 <div ng-controller="GenericRecordController">
-  <field label="Label">
-    <input type="text" ng-model="item.label" />
-  </field>
+  <text-field label="Label" model="item" prop="label" mode="mode"></text-field>
   <select-field label="Type" model="item" prop="type" mode="mode" options="boolean,string,number"></select-field>
 </div>
