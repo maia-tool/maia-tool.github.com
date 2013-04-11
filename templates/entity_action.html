@@ -1,8 +1,8 @@
 <div ng-controller="EntityActionRecordController">
   <text-field label="Label" model="item" prop="label" mode="mode"></text-field>
-  <select-field label="Performer" model="item" prop="performer" mode="mode" query="queryPerformer" type="agent,role,physical_component" formatter="label"></select-field>
-  <select-field label="Action body" model="item" prop="action_body" multiple="multiple" mode="mode" query="queryActionBody"></select-field>
-  <select-field label="Decision making" model="item" prop="decision_making" type="criterium" multiple="multiple" mode="mode" formatter="label" creator='label'></select-field>
+  <remote-select-field label="Performer" model="item" prop="performer" mode="mode" query="queryPerformer" type="agent,role,physical_component" formatter="label"></remote-select-field>
+  <remote-select-field label="Action body" model="item" prop="action_body" multiple="multiple" mode="mode" query="queryActionBody"></remote-select-field>
+  <remote-select-field label="Decision making" model="item" prop="decision_making" type="criterium" multiple="multiple" mode="mode" formatter="label" creator='label'></remote-select-field>
   <text-field label="Precondition" model="item" prop="precondition" mode="mode"></text-field>
   <text-field label="Postcondition (do)" model="item" prop="postcondition_do" mode="mode"></text-field>
   <text-field label="Postcondition (not do)" model="item" prop="postcondition_not_do" mode="mode"></text-field>

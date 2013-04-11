@@ -1,10 +1,10 @@
 <div ng-controller="GenericRecordController">
   <text-field label="Label" model="item" prop="label" mode="mode"></text-field>
-  <select-field label="Properties" model="item" prop="properties" type="property" multiple="multiple" mode="mode" formatter="label + ' (' + type + ')'" creator='label' creator-dialog="true"></select-field>
-  <select-field label="Personal values" model="item" prop="personal_values" type="personal_value" multiple="multiple" mode="mode" formatter="label + ' (' + value + ')'" creator='label' creator-dialog="true"></select-field>
+  <remote-select-field label="Properties" model="item" prop="properties" type="property" multiple="multiple" mode="mode" formatter="label + ' (' + type + ')'" creator='label' creator-dialog="true"></remote-select-field>
+  <remote-select-field label="Personal values" model="item" prop="personal_values" type="personal_value" multiple="multiple" mode="mode" formatter="label + ' (' + value + ')'" creator='label' creator-dialog="true"></remote-select-field>
   <text-field label="Information" model="item" prop="information" mode="mode"></text-field>
-  <select-field label="Physical components" model="item" prop="physical_components" type="physical_component" multiple="multiple" mode="mode" formatter="label" creator='label' creator-dialog="true"></select-field>
-  <select-field label="Possible roles" model="item" prop="roles" type="role" multiple="multiple" mode="mode" formatter="label" creator='label' creator-dialog="true"></select-field>
-  <select-field label="Intrinsic capabilities" model="item" prop="intrinsic_capabilities" type="capability" multiple="multiple" mode="mode" formatter="label" creator='label'></select-field>
-  <select-field label="Decision making criteria" model="item" prop="decision_making_criteria" type="criterium" multiple="multiple" mode="mode" formatter="label" creator='label'></select-field>
+  <remote-select-field label="Physical components" model="item" prop="physical_components" type="physical_component" multiple="multiple" mode="mode" formatter="label" creator='label' creator-dialog="true"></remote-select-field>
+  <remote-select-field label="Possible roles" model="item" prop="roles" type="role" multiple="multiple" mode="mode" formatter="label" creator='label' creator-dialog="true"></remote-select-field>
+  <remote-select-field label="Intrinsic capabilities" model="item" prop="intrinsic_capabilities" type="capability" multiple="multiple" mode="mode" formatter="label" creator='label'></remote-select-field>
+  <remote-select-field label="Decision making criteria" model="item" prop="decision_making_criteria" type="criterium" multiple="multiple" mode="mode" formatter="label" creator='label'></remote-select-field>
 </div>

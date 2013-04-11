@@ -1,5 +1,5 @@
 <div ng-controller="VariableComputationController">
-  <select-field label="Dependent variable" model="item" prop="dependent_variable" type="variable" mode="mode" formatter="label" creator='label' creator-dialog="true"></select-field>
-  <select-field label="Independent variables" model="item" prop="independent_variables" multiple="multiple" mode="mode" query="queryIndependentVariables"></select-field>
+  <remote-select-field label="Dependent variable" model="item" prop="dependent_variable" type="variable" mode="mode" formatter="label" creator='label' creator-dialog="true"></remote-select-field>
+  <remote-select-field label="Independent variables" model="item" prop="independent_variables" multiple="multiple" mode="mode" query="queryIndependentVariables"></remote-select-field>
   <text-field label="Computation" model="item" prop="computation" mode="mode"></text-field>
 </div>

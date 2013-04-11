@@ -1,7 +1,7 @@
 <div ng-controller="GenericRecordController">
   <text-field label="Label" model="item" prop="label" mode="mode"></text-field>
-  <select-field label="Objectives" model="item" prop="objectives" type="objective" multiple="multiple" mode="mode" formatter="label" creator='label'></select-field>
-  <select-field label="Institutions" model="item" prop="institutions" type="institution" multiple="multiple" mode="mode" formatter="label" creator='label' creator-dialog="true"></select-field>
+  <remote-select-field label="Objectives" model="item" prop="objectives" type="objective" multiple="multiple" mode="mode" formatter="label" creator='label'></remote-select-field>
+  <remote-select-field label="Institutions" model="item" prop="institutions" type="institution" multiple="multiple" mode="mode" formatter="label" creator='label' creator-dialog="true"></remote-select-field>
   <text-field label="Entry condition" model="item" prop="entry_condition" mode="mode"></text-field>
-  <select-field label="Institutional capabilities" model="item" prop="institutional_capabilities" type="capability" multiple="multiple" mode="mode" formatter="label" creator='label'></select-field>
+  <remote-select-field label="Institutional capabilities" model="item" prop="institutional_capabilities" type="capability" multiple="multiple" mode="mode" formatter="label" creator='label'></remote-select-field>
 </div>

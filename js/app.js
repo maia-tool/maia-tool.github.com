@@ -62,7 +62,7 @@ app.directive('pickField', function() {
 });
 
 
-app.directive('selectField', function() {
+app.directive('remoteSelectField', function() {
   return {
     restrict: 'E',
     transclude: false,
@@ -80,7 +80,7 @@ app.directive('selectField', function() {
       query: '=',
       maxItems: '@'
     },
-    templateUrl: 'templates/select-field.html'
+    templateUrl: 'templates/remote-select-field.html'
   };
 });
 
@@ -954,7 +954,7 @@ function VariableComputationController($scope, $data) {
 }
 
 
-function SelectFieldController($scope, $data, $parse) {
+function RemoteSelectFieldController($scope, $data, $parse) {
   var val = $scope.model[$scope.prop];
   if (!val)
     return;

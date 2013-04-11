@@ -1,6 +1,6 @@
 <div ng-controller="GenericRecordController">
   <text-field label="Label" model="item" prop="label" mode="mode"></text-field>
-  <select-field label="Properties" model="item" prop="properties" type="property" multiple="multiple" mode="mode" formatter="label + ' (' + type + ')'" creator='label' creator-dialog="true"></select-field>
+  <remote-select-field label="Properties" model="item" prop="properties" type="property" multiple="multiple" mode="mode" formatter="label + ' (' + type + ')'" creator='label' creator-dialog="true"></remote-select-field>
   <text-field label="Type" model="item" prop="type" mode="mode"></text-field>
-  <select-field label="Behaviors" model="item" prop="behaviors" type="behavior" multiple="multiple" mode="mode" formatter="label" creator='label'></select-field>
+  <remote-select-field label="Behaviors" model="item" prop="behaviors" type="behavior" multiple="multiple" mode="mode" formatter="label" creator='label'></remote-select-field>
 </div>
