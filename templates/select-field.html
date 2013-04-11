@@ -1,0 +1,8 @@
+<field label="{{label}}" primary="{{primary}}">
+  <div ng-switch on="mode" ng-controller="SelectFieldController">
+    <span ng-switch-when="view">{{optionMap[model[prop]]}}</span>
+    <select select2 ng-switch-default ng-model="model[prop]">
+      <option ng-repeat="(key, label) in optionMap" value="{{key}}">{{label}}</option>
+    </select>
+  </div>
+</field>
