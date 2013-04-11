@@ -1157,7 +1157,8 @@ function DependencyGraphController($scope, $data) {
     var obj = angular.copy($data.getObject(id, 'role'));
     if (!obj)
       return;
-    obj.dependency_graph_pos = pos;
+    obj.dependency_graph_x = pos.x;
+    obj.dependency_graph_y = pos.y;
     $data.updateObject(obj);
   };
 }
@@ -1223,7 +1224,8 @@ function ConnectionGraphController($scope, $data) {
     var obj = angular.copy($data.getObject(id, 'physical_component'));
     if (!obj)
       return;
-    obj.connection_graph_pos = pos;
+    obj.connection_graph_x = pos.x
+    obj.connection_graph_y = pos.y;
     $data.updateObject(obj);
   };
 }
@@ -1285,7 +1287,8 @@ function CompositionGraphController($scope, $data) {
     var obj = angular.copy($data.getObject(id, 'physical_component'));
     if (!obj)
       return;
-    obj.composition_graph_pos = pos;
+    obj.composition_graph_x = pos.x;
+    obj.composition_graph_y = pos.y;
     $data.updateObject(obj);
   };
 }
