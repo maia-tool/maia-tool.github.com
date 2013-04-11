@@ -7,7 +7,11 @@
   background-image: linear-gradient(to bottom, #FFFFFF, #eef4ff) !important;
 }
 
-field input.ng-scope, field .select2-choices, field .select2-container > .select2-choice  {
+field input.ng-scope,
+field .select2-choices,
+field .select2-container > .select2-choice ,
+.matrix td .select2-choices,
+.matrix td .select2-container > .select2-choice  {
   width: 100%;
   min-height: 30px !important;
   -box-sizing: border-box;
@@ -16,12 +20,14 @@ field input.ng-scope, field .select2-choices, field .select2-container > .select
   background-image: none !important;
 }
 
-field .select2-container {
+field .select2-container,
+.matrix td .select2-container {
   width: 100%;
   display: block;
 }
 
 field .select2-container,
+.matrix td .select2-container,
 field input.ng-scope {
   margin: -5px 0 -5px 0;
 }
@@ -42,7 +48,7 @@ field input.ng-scope {
           transition: border linear 0.2s, box-shadow linear 0.2s;
 }
 
-field {
+field, .matrix td {
   min-height: 30px;
 }
 

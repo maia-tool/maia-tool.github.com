@@ -1306,11 +1306,67 @@ function CompositionGraphController($scope, $data) {
 
 function MatrixController($scope, $data, $routeParams) {
   var _class = $routeParams['class'];
+
+  if (_class == 'problem_domain_variable')
+    $scope.matrixType = 'problem_domain';
+  else if (_class == 'validation_variable')
+    $scope.matrixType = 'validation';
+
   $scope.entity_actions = $data.getObjects('entity_action');
-  $scope.variables = $data.getObjects('variable');
-  $scope.items = $data.getObjects('_class');
+  $scope.items = $data.getObjects(_class);
 }
 
+function MatrixDependentVariableController($scope, $data) {
+  var dependentVariableId = $scope.item &&
+                            $scope.item.dependent_variable &&
+                            $scope.item.dependent_variable._ref;
+  $scope.dependentVariable = dependentVariableId &&
+                             $data.getObject(dependentVariableId);
+}
+
+function MatrixValueController($scope, $data) {
+  var matrixType = $scope.matrixType,
+      item = $scope.item,
+      ent = $scope.ent;
+
+  var assoc = ent[matrixType] || [];
+
+  for (var i = 0; i < assoc.length; i++) {
+    if (assoc[i]._ref === item._id) {
+      $scope.modelValue = assoc[i].value;
+      break;
+    }
+  }
+
+  $scope.value = $scope.modelValue;
+
+  $scope.$watch('value', function() {
+    // Prevent updating the model when rendering the view.
+    if ($scope.value === $scope.modelValue)
+      return;
+
+    var obj = angular.copy(ent),
+        assoc = obj[matrixType] || (obj[matrixType] = []);
+
+    $scope.modelValue = $scope.value;
+
+    // Try to update an existing association first
+    for (var i = 0; i < assoc.length; i++) {
+      if (assoc[i]._ref === item._id) {
+        assoc[i].value = $scope.value;
+        $data.updateObject(obj);
+        break;
+      }
+    }
+
+    // Add a new relation if none was updated.
+    assoc.push({
+      _ref: item._id,
+      value: $scope.value
+    });
+    $data.updateObject(obj);
+  });
+}
 
 function HelpController($scope, $location) {
   $scope.$watch(function() {

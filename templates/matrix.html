@@ -1,5 +1,5 @@
 
-<table class="table table-bordered">
+<table class="table table-bordered matrix">
   <thead>
     <tr>
        <td></td>
@@ -7,10 +7,10 @@
     </tr>
   </thead>
   <tbody>
-    <tr ng-repeat="item in items">
-      <th>{{variables[item.dependent_variable._id].label}}</th>
-      <td ng-repeat="ent in entity_actions">
-        <select>
+    <tr ng-repeat="item in items" ng-controller="MatrixDependentVariableController">
+      <th>{{dependentVariable.label}}</th>
+      <td ng-repeat="ent in entity_actions" ng-controller="MatrixValueController">
+        <select select2 ng-model='value'>
           <option value='direct'>direct</option>
           <option value='indirect'>indirect</option>
           <option value=''>none</option>
