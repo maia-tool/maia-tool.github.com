@@ -1,6 +1,6 @@
 <div ng-controller="PlanRecordController">
   <text-field label="Label" model="item" prop="label" mode="mode"></text-field>
-  <text-field label="Type" model="item" prop="type" mode="mode"></text-field>
+  <select-field label="Type" model="item" prop="type" mode="mode" options="atomic,alternative,loop,sequence"></select-field>
   <remote-select-field label="Components" model="item" prop="components" max-items="model.type" type="entity_action" multiple="multiple" mode="mode" formatter="label" creator='label' creator-dialog="true"></remote-select-field>
   <text-field label="Iteration condition" model="item" prop="iteration_condition" mode="mode"></text-field>
 </div>
