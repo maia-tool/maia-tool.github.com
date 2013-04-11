@@ -659,7 +659,7 @@ app.directive('maiaGraph', function($dialog, $parse, $interpolate) {
           };
 
           g.onchangeedgelabel = function(args) {
-            onLink(args.fromNode.id, args.toNode.id, args.label || '');
+            onChangeLink(args.fromNode.id, args.toNode.id, args.label || '');
             delayedUpdate();
           };
 
