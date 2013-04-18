@@ -1,5 +1,15 @@
 var app = angular.module('maia', ['ui', 'ui.bootstrap', 'maia']);
 
+app.value('ui.config', {
+  dialog: {
+    backdrop: true,
+    keyboard: true,
+    backdropClick: false,
+    backdropFade: true,
+    modalClass: 'modal bounceInDown animated',
+  }
+});
+
 app.config(function($routeProvider, $locationProvider) {
   $routeProvider.when('/list/:class', {
     templateUrl: 'templates/list.html',
@@ -781,11 +791,6 @@ function openEditDialog($dialog, $data, options) {
   }
 
   var d = $dialog.dialog({
-    backdrop: true,
-    keyboard: true,
-    backdropClick: false,
-    backdropFade: true,
-    modalClass: 'modal bounceInDown animated',
     templateUrl: 'templates/edit_dialog.html',
     controller: DialogController
   });
@@ -811,11 +816,6 @@ function openConfirmDialog($dialog, options) {
   }
 
   var d = $dialog.dialog({
-    backdrop: true,
-    keyboard: true,
-    backdropClick: false,
-    backdropFade: true,
-    modalClass: 'modal bounceInDown animated',
     templateUrl: 'templates/confirm_dialog.html',
     controller: DialogController
   });
