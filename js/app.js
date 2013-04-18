@@ -88,16 +88,20 @@ app.service('$data', function() {
 
   var byId = {};
   var byClass = {};
+  var metadata = {};
 
   function saveToLocalStorage() {
-    var json = JSON.stringify(exportData());
-    window.localStorage.setItem('data', json);
+    var exports = exportData();
+
+    window.localStorage.setItem('data', JSON.stringify(exports[0]));
+    window.localStorage.setItem('metadata', JSON.stringify(exports[1]));
   }
 
   function loadFromLocalStorage() {
     try {
-      var data = JSON.parse(window.localStorage.getItem('data'));
-      importData(data);
+      var data = importData(JSON.parse(window.localStorage.getItem('data')));
+      var metadata = JSON.parse(window.localStorage.getItem('metadata') || '{}');
+      importData(data, metadata);
     } catch (e) {
       clear();
     }
@@ -127,9 +131,14 @@ app.service('$data', function() {
         index.splice(0, index.length);
       }
     }
+
+    metadata = {
+      revision: 0,
+      savedRevision: 0
+    };
   }
 
-  function importData(data) {
+  function importData(data, metadata_) {
     clear();
 
     for (var i = 0; i < data.length; i++) {
@@ -149,6 +158,20 @@ app.service('$data', function() {
         list.push(obj);
       }
     }
+
+    metadata_ = metadata_ || {};
+    for (var key in metadata) {
+      if (!metadata_.hasOwnProperty(key))
+        delete metadata[key];
+    }
+
+    for (var key in metadata_) {
+      if (metadata_.hasOwnProperty(key))
+        metadata[key] = metadata_[key];
+    }
+
+    metadata.revision = metadata.revision || 1;
+    metadata.savedRevision = metadata.savedRevision || 0;
   }
 
   function exportData() {
@@ -159,7 +182,7 @@ app.service('$data', function() {
         objects.push(byId[_id]);
     }
 
-    return objects;
+    return [data, metadata];
   }
 
   function getObject(_id) {
@@ -270,12 +293,17 @@ app.service('$data', function() {
     deferredSaveToLocalStorage();
   }
 
+  function getMetadata() {
+    return metadata;
+  }
+
   this.importData = importData;
   this.exportData = exportData;
   this.getObject = getObject;
   this.getObjects = getObjects;
   this.updateObject = updateObject;
   this.deleteObject = deleteObject;
+  this.getMetadata = getMetadata;
 
   loadFromLocalStorage();
 });
