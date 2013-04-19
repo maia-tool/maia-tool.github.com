@@ -174,3 +174,7 @@ field label {
   max-width: 400px;
   height: 500px;
 }
+
+.modal-body .row-fluid {
+  width: auto;
+}
