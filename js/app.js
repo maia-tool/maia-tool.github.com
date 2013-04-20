@@ -383,6 +383,7 @@ app.service('$data', function($drive) {
 });
 
 var CLIENT_ID = '484431590840.apps.googleusercontent.com';
+var API_KEY = 'AIzaSyBRfOuymdVHEvjHu7Z_IPcR4UK6x3O9dCc';
 var SCOPES = 'https://www.googleapis.com/auth/userinfo.profile ' +
              'https://www.googleapis.com/auth/userinfo.email '+ 
              'https://www.googleapis.com/auth/drive';
@@ -453,46 +454,44 @@ app.service('$drive', function($rootScope, $http) {
       if (err)
         return callback(err);
         
-      var url = 'https://www.googleapis.com/drive/v2/files/' + id;
-      var requestHeaders = {
-            'Authorization': self.authResult.token_type + ' ' + self.authResult.access_token
-          };
-      var requestParams = {
-            'access_token': self.authResult.access_token,
-          }
-      
       var config = {
         method: 'GET',
-        url: url,
-        headers: requestHeaders,
-        params: requestParams
+        path: '/drive/v2/files/' + id,
+        callback: onMetadataLoad
       };
       
-      $http(config)
-          .success(function(driveMetaData, status, headers, config) {
-            var config = {
-              method: 'GET',
-              url: driveMetaData.downloadUrl,
-              headers: requestHeaders,
-              params: requestParams,
-              transformResponse: []
-            };
-            
-            $http(config)
-                .success(function(data, status, headers, config) {
-                  var newMetadata = {
-                    id: driveMetaData.id,
-                    title: driveMetaData.title
-                  };
-                  callback(null, newMetadata, data);
-                })
-                .error(function(result, status, headers, config) {
-                  callback(status);
-                });
-          })
-          .error(function(result, status, headers, config) {
-            callback(status);
-          });
+      gapi.client.request(config);
+      
+      function onMetadataLoad(driveMetadata, result) {
+        if (!driveMetadata)
+          return callback(result.status + ' ' + result.statusText);
+    
+        var config = {
+          method: 'GET',
+          url: driveMetadata.downloadUrl,
+          headers: {
+            Authorization: self.authResult.token_type + ' ' +
+                           self.authResult.access_token,
+            // Drop the x-requested-with header which is frivolously added
+            // by angularjs...
+            'X-Requested-With': null
+          },
+          transformResponse: []
+        };
+        
+        $http(config)
+            .success(function(data, status, headers, config) {
+              var newMetadata = {
+                id: driveMetadata.id,
+                title: driveMetadata.title
+              };
+              callback(null, newMetadata, data);
+            })
+            .error(function(data, status, headers, config) {
+              callback(status);
+            });
+        
+      }
     });
   }
   
@@ -501,11 +500,11 @@ app.service('$drive', function($rootScope, $http) {
       if (err)
         return callback(err);
       
-      var url = 'https://www.googleapis.com/upload/drive/v2/files',
+      var path = '/upload/drive/v2/files',
           method = 'POST';
       
       if (metadata.id) {
-        url += '/' + metadata.id;
+        path += '/' + metadata.id;
         method = 'PUT';
       }
       
@@ -529,29 +528,29 @@ app.service('$drive', function($rootScope, $http) {
 
       var config = {
         method: method,
-        url: url,
+        path: path,
         params: { 
-          uploadType: 'multipart' 
+          uploadType: 'multipart',
         },
         headers: {
-          'Content-Type': 'multipart/related; boundary="' + boundary + '"',
-          'Authorization': self.authResult.token_type + ' ' + self.authResult.access_token
+          'Content-Type': 'multipart/related; boundary="' + boundary + '"'
         },
-        data: body
+        body: body,
+        callback: onUploaded
       };
-                 
-      $http(config)
-          .success(function(result, status, headers, config) {
-            console.log(result);
-            var newMetadata = {
-              id: result.id,
-              title: result.title
-            };
-            callback(null, newMetadata);
-          })
-          .error(function(result, status, headers, config) {
-            callback(status);
-          });
+      
+      gapi.client.request(config);
+      
+      function onUploaded(response, result) {
+        if (!response)
+          return callback(result.status + ' ' + result.statusText);
+          
+        var newMetadata = {
+          id: response.id,
+          title: response.title
+        };
+        callback(null, newMetadata);
+      }
     });
   }
 });
