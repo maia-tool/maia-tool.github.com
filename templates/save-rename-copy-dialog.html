@@ -1,8 +1,11 @@
-<div class="modal-header">
-  <h1>Save as...</h1>
+<div class="modal-header" ng-switch on="mode">
+  <h1 ng-switch-when="save">Save</h1>
+  <h1 ng-switch-when="copy">Copy</h1>
+  <h1 ng-switch-when="rename">Rename</h1>
 </div>
 <div class="modal-body">
   <div ng-hide="drive.authorized" class="alert alert-warning">
+    MAIA models are saved to your personal google drive account.<br>
     You need to authorize MAIA to save models to your google drive.
   </div>
   <div ng-hide="busy" class="row-fluid">

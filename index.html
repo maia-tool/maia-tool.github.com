@@ -32,16 +32,41 @@
   <div class="navbar-inner">
     <div class="container">
       <ul class="nav">
-        <li><a ng-click="newModel()">New...</a></li>
-        <li><a ng-click="save()">Save</a></li>
-        <li><a ng-click="open()">Open</a></li>
-        <li><a>Print</a></li>
-        <li><a ng-click="download()">Download</a></li>
+        <li>
+          <div class="btn-group">
+            <a class="btn btn-inverse dropdown-toggle" data-toggle="dropdown" href="#">
+              Model
+              <span class="caret"></span>
+            </a>
+            <ul class="dropdown-menu">
+              <li><a ng-click="newModel()">New</a></li>
+              <li class="divider" ng-show="metadata.savedRevision"></li>
+              <li><a ng-click="open()">Open</a></li>
+              <li class="divider" ng-show="metadata.savedRevision"></li>
+              <li><a ng-click="save()">Save</a></li>
+              <li ng-show="metadata.savedRevision"><a ng-click="rename()">Rename</a></li>
+              <li ng-show="metadata.savedRevision"><a ng-click="copy()">Copy</a></li>
+            </ul>
+          </div>
+         </li>
       </ul>
+      <span ng-show="(metadata.revision == metadata.savedRevision) && metadata.revision">
+        {{formattedTitle2}}
+      </span>
+      <span ng-show="(metadata.revision != metadata.savedRevision) && metadata.savedRevision">
+        {{formattedTitle1}} has unsaved changes. {{metadata.revision}}
+      </span>
+      <span ng-show="(metadata.revision != metadata.savedRevision) && !metadata.savedRevision">
+        {{formattedTitle1}} has never been saved. {{metadata.revision}}
+      </span>
+      <a ng-click="save()" ng-show="(metadata.revision != metadata.savedRevision) && !saving">
+        Save now.
+      </a>
+      <span ng-show="saving">
+        Saving...
+      </span>
     </div>
   </div>
-  
-  {{drive.result}}
 </div>
 
 <div class="container-fluid container-main">

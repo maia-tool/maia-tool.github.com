@@ -121,7 +121,11 @@ app.service('$data', function($drive) {
   function saveToDrive(callback) {
     var metadata = angular.copy(getMetadata());
     
-    metadata.savedRevision = metadata.revision;
+    if (metadata.revision)
+      metadata.savedRevision = metadata.revision;
+    else
+      metadata.savedRevision = metadata.revision = 1;
+
     metadata.savedDate = (new Date()).toISOString();
     
     var data = {
@@ -166,7 +170,6 @@ app.service('$data', function($drive) {
   
   function newModel() {
     clear();
-    debugger;
     setMetadata({});
     
     saveToLocalStorage();
@@ -292,6 +295,7 @@ app.service('$data', function($drive) {
       list.push(tgt);
     }
 
+    bumpRevision();
     deferredSaveToLocalStorage();
 
     if (callback)
@@ -364,6 +368,10 @@ app.service('$data', function($drive) {
       if (metadata_.hasOwnProperty(key))
         metadata[key] = metadata_[key];
     }
+  }
+  
+  function bumpRevision() {
+    metadata.revision = 1 + ~~metadata.revision;
   }
 
   this.importData = importData;
@@ -438,7 +446,6 @@ app.service('$drive', function($rootScope, $http) {
     function onAuthorize(result) {
       self.authResult = result;
       self.authorized = result && !result.error;
-      $rootScope.$digest();
       
       if (!callback)
         return;
@@ -550,6 +557,8 @@ app.service('$drive', function($rootScope, $http) {
           title: response.title
         };
         callback(null, newMetadata);
+        
+        $rootScope.$digest();
       }
     });
   }
@@ -1659,84 +1668,215 @@ function PlanRecordController($scope) {
   $scope.validators.push(labelValidator);
 }
 
-function NavbarController($scope, $data, $drive, $dialog) {
+function NavbarController($scope, $data, $drive, $dialog, $rootScope) {
   $scope.drive = $drive;
+  $scope.metadata = $data.getMetadata();
+  $scope.saving = false;
   
-  $scope.download = function() {
-    var json = JSON.stringify($data.exportData(), null, 2);
-    var mime = "application/binary";
-    var dataUri = 'data:' + mime + ';charset=utf-8,' + encodeURIComponent(json);
-    window.location = dataUri;
-  };
+  $scope.$watch('metadata.title', function(title) {
+    if (title) {
+      $scope.formattedTitle1 = "'" + title + "'";
+      $scope.formattedTitle2 = title;
+    } else {
+      $scope.formattedTitle1 = 'This model';
+      $scope.formattedTitle2 = 'Unnamed model'
+    }
+  });
+  
+  function confirmDiscardSave(cb) {
+    if ($scope.metadata.revision == $scope.metadata.savedRevision)
+      return cb();
+      
+    $dialog.dialog({
+      templateUrl: 'templates/discard-save-dialog.html',
+      controller: 'DiscardSaveDialogController'
+    }).open()
+      .then(function(result) {
+        if (result === 'save')
+          $scope.save(function(saved) {
+            if (saved)
+              cb();
+          });
+        else if (result === 'discard')
+          cb();
+      });
+  }
   
   $scope.newModel = function() {
-    $data.newModel();
+    confirmDiscardSave(function() {
+      $data.newModel();
+    });
   };
   
-  $scope.save = function() {
+  $scope.save = function(cb) {
+    // Show dialog box only if the model has never been saved before.
+    if (!$scope.metadata.id) {
+      $dialog.dialog({
+        templateUrl: 'templates/save-rename-copy-dialog.html',
+        controller: 'SaveDialogController'
+      }).open()
+        .then(function(saved) {
+          if (cb)
+            cb(saved);
+        });
+      
+    } else {
+      $scope.saving = true;
+      $data.saveToDrive(function(err) {
+        $scope.saving = false;
+        
+        if (cb)
+          cb(!err);
+      });
+    }
+  };
+  
+  $scope.rename = function() {
     $dialog.dialog({
-      templateUrl: 'templates/save-dialog.html',
-      controller: 'SaveDialogController'
+      templateUrl: 'templates/save-rename-copy-dialog.html',
+      controller: 'RenameDialogController'
+    }).open();
+  };
+  
+  $scope.copy = function() {
+    $dialog.dialog({
+      templateUrl: 'templates/save-rename-copy-dialog.html',
+      controller: 'CopyDialogController'
     }).open();
   };
   
   $scope.open = function() {
-    $drive.authorize(function(err) {
-      if (err)
-        return;
-        
-      // A simple callback implementation.
-      function pickerCallback(data) {
-        if (data.action == google.picker.Action.PICKED) {
-          var fileId = data.docs[0].id;
-          alert('The user selected: ' + fileId);
-        }
-      }
-   
-      var view = new google.picker.View(google.picker.ViewId.DOCS);
-      view.setMimeTypes('application/maia+json');
-                 
-      var picker = new google.picker.PickerBuilder()
-                   .setAppId(CLIENT_ID)
-                   .addView(view)
-                   .addView(new google.picker.DocsUploadView())
-                   .addView(new google.picker.View(google.picker.ViewId.FOLDERS))	
-                   .setCallback(onPick)
-                   .setOAuthToken($drive.authResult.access_token)
-                   .build();
-                   
-      picker.setVisible(true);
-      
-      function onPick(result) {
-        if (!result || result.action !== 'picked' || !result.docs || 
-            !result.docs[0])
+    confirmDiscardSave(function() {
+      $drive.authorize(function(err) {
+        if (err)
           return;
           
-        $data.loadFromDrive(result.docs[0].id, function(err) {
-          if (err)
+        // A simple callback implementation.
+        function pickerCallback(data) {
+          if (data.action == google.picker.Action.PICKED) {
+            var fileId = data.docs[0].id;
+            alert('The user selected: ' + fileId);
+          }
+        }
+     
+        var view = new google.picker.View(google.picker.ViewId.DOCS);
+        view.setMimeTypes('application/maia+json');
+                   
+        var picker = new google.picker.PickerBuilder()
+                     .setAppId(CLIENT_ID)
+                     .addView(view)
+                     .addView(new google.picker.DocsUploadView())
+                     .addView(new google.picker.View(google.picker.ViewId.FOLDERS))	
+                     .setCallback(onPick)
+                     .setOAuthToken($drive.authResult.access_token)
+                     .build();
+                     
+        picker.setVisible(true);
+        
+        function onPick(result) {
+          if (!result || result.action !== 'picked' || !result.docs || 
+              !result.docs[0])
             return;
             
-          picker.setVisible(false);
-        });
-      }
+          $data.loadFromDrive(result.docs[0].id, function(err) {
+            if (err)
+              return;
+              
+            picker.setVisible(false);
+          });
+        }
+      });
     });
   };
 }
 
 
-function SaveDialogController($scope, $data, $drive, dialog) {
+function SaveDialogController($scope, $data, $drive, $rootScope, dialog) {
   $scope.title = $data.getMetadata().title || '';
   $scope.drive = $drive;
+  $scope.busy = false;
+  $scope.mode = 'save';
   
   $scope.save = function() {
+    $scope.busy = true;
     $data.updateMetadata({title: $scope.title});
-    console.log('awia' , $scope.title);
-    $data.saveToDrive(function(x, y) {
-      console.log(x, y);
+    
+    $data.saveToDrive(function(err) {
+      dialog.close(!err);
     });
   };
   
   $scope.close = function() {
     dialog.close(false);
+  };
+}
+
+
+function RenameDialogController($scope, $data, $drive, $rootScope, dialog) {
+  $scope.title = $data.getMetadata().title || '';
+  $scope.drive = $drive;
+  $scope.busy = false;
+  $scope.mode = 'rename';
+  
+  $scope.save = function() {
+    $scope.busy = true;
+    $data.updateMetadata({title: $scope.title});
+    
+    $data.saveToDrive(function(err) {
+      dialog.close(!err);
+    });
+  };
+  
+  $scope.close = function() {
+    dialog.close(false);
+  };
+}
+
+
+function CopyDialogController($scope, $data, $drive, $rootScope, dialog) {
+  var title = $data.getMetadata().title;
+  
+  if (title)
+    $scope.title = 'Copy of ' + title;
+  else
+    $scope.title = '';
+  
+  $scope.drive = $drive;
+  $scope.busy = false;
+  $scope.mode = 'copy';
+  
+  $scope.save = function() {
+    $scope.busy = true;
+    $data.updateMetadata({title: $scope.title, id: null, savedRevision: 0});
+      
+    $data.saveToDrive(function(err) {
+      dialog.close(!err);
+    });
+  };
+  
+  $scope.close = function() {
+    dialog.close(false);
+  };
+}
+
+
+function DiscardSaveDialogController($scope, $data, $drive, $rootScope, dialog) {
+  var title = $data.getMetadata().title;
+  
+  if (title)
+    $scope.formattedTitle = "model '" + title + "'";
+  else
+    $scope.title = 'this model';
+  
+  $scope.save = function() {
+    dialog.close('save');
+  };
+  
+  $scope.discard = function() {
+    dialog.close('discard');
+  };
+  
+  $scope.cancel = function() {
+    dialog.close('cancel');
   };
 }

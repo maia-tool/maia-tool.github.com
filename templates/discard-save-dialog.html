@@ -1,0 +1,18 @@
+<div class="modal-header">
+  <h1>Save</h1>
+</div>
+<div class="modal-body">
+  You have unsaved changes in the model currently open.<br>
+  Do you want to save {{formattedTitle}}?
+</div>
+<div class="modal-footer">
+  <button class="btn btn-default" ng:click="save()">
+    <i class="icon-ok icon-white"></i>Save
+  </button>
+  <button class="btn btn-danger" ng:click="discard()">
+    <i class="icon-trash icon-white"></i>Don't save
+  </button>
+  <button class="btn" ng:click="cancel()">
+    <i class="icon-ban-circle"></i> Cancel
+  </button>
+</div>;
