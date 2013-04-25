@@ -1300,7 +1300,7 @@ function EntityActionRecordController($scope, $data) {
 function VariableComputationController($scope, $data) {
   function filter(item, term) {
     var text = String(item.text || '').toLowerCase();
-    term = term.toLowerCase;
+    term = term.toLowerCase();
     if (text.indexOf(term) === -1)
       return false;
     return true;
