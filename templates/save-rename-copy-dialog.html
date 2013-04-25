@@ -1,0 +1,27 @@
+<div class="modal-header" ng-switch on="mode">
+  <h1 ng-switch-when="save">Save</h1>
+  <h1 ng-switch-when="copy">Copy</h1>
+  <h1 ng-switch-when="rename">Rename</h1>
+</div>
+<div class="modal-body">
+  <div ng-hide="drive.authorized" class="alert alert-warning">
+    MAIA models are saved to your personal google drive account.<br>
+    You need to authorize MAIA to save models to your google drive.
+  </div>
+  <div ng-hide="busy" class="row-fluid">
+    <div class="span3">
+      <label>Document title</label>
+    </div>
+    <div class="span9">
+      <input type="text" ng-model="title">
+    </div>
+  </div>
+  <div ng-show="busy" class="progress progress-striped active">
+    <div class="bar" style="width: 100%;"></div>
+  </div>
+</div>
+<div class="modal-footer">
+  <button ng-show="drive.authorized"ng-click="save()" class="btn btn-primary">Save</button>
+  <button ng-hide="drive.authorized" ng-click="save()" class="btn btn-primary">Authorize and save</button>
+  <button ng-click="close()" class="btn">Cancel</button>
+</div>

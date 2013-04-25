@@ -93,7 +93,7 @@ app.directive('remoteSelectField', function() {
   };
 });
 
-app.service('$data', function() {
+app.service('$data', function($drive) {
   var self = this;
 
   var byId = {};
@@ -102,19 +102,77 @@ app.service('$data', function() {
 
   function saveToLocalStorage() {
     var exports = exportData();
-
     window.localStorage.setItem('data', JSON.stringify(exports[0]));
     window.localStorage.setItem('metadata', JSON.stringify(exports[1]));
   }
 
   function loadFromLocalStorage() {
     try {
-      var data = importData(JSON.parse(window.localStorage.getItem('data')));
+      var data = JSON.parse(window.localStorage.getItem('data'));
       var metadata = JSON.parse(window.localStorage.getItem('metadata') || '{}');
-      importData(data, metadata);
+      importData(data);
+      setMetadata(metadata);
     } catch (e) {
       clear();
+      setMetadata();
     }
+  }
+
+  function saveToDrive(callback) {
+    var metadata = angular.copy(getMetadata());
+
+    if (metadata.revision)
+      metadata.savedRevision = metadata.revision;
+    else
+      metadata.savedRevision = metadata.revision = 1;
+
+    metadata.savedDate = (new Date()).toISOString();
+
+    var data = {
+      objects: exportObjects(),
+      metadata: angular.copy(metadata)
+    };
+
+    var json = JSON.stringify(data);
+
+    $drive.save(metadata, json, function(err, metadata2) {
+      if (err)
+        return callback(err);
+
+      updateMetadata(metadata);
+      updateMetadata(metadata2);
+      saveToLocalStorage();
+
+      callback();
+    });
+  }
+
+  function loadFromDrive(id, callback) {
+    $drive.load(id, function(err, metadata2, json) {
+      if (err)
+        return callback(err);
+
+      try {
+        var data = JSON.parse(json);
+      } catch (e) {
+        return callback(e);
+      }
+
+      setMetadata(data.metadata);
+      updateMetadata(metadata2);
+      importData(data.objects);
+
+      saveToLocalStorage();
+
+      callback();
+    });
+  }
+
+  function newModel() {
+    clear();
+    setMetadata({});
+
+    saveToLocalStorage();
   }
 
   var saveTimer = null;
@@ -141,14 +199,9 @@ app.service('$data', function() {
         index.splice(0, index.length);
       }
     }
-
-    metadata = {
-      revision: 0,
-      savedRevision: 0
-    };
   }
 
-  function importData(data, metadata_) {
+  function importData(data) {
     clear();
 
     for (var i = 0; i < data.length; i++) {
@@ -168,23 +221,9 @@ app.service('$data', function() {
         list.push(obj);
       }
     }
-
-    metadata_ = metadata_ || {};
-    for (var key in metadata) {
-      if (!metadata_.hasOwnProperty(key))
-        delete metadata[key];
-    }
-
-    for (var key in metadata_) {
-      if (metadata_.hasOwnProperty(key))
-        metadata[key] = metadata_[key];
-    }
-
-    metadata.revision = metadata.revision || 1;
-    metadata.savedRevision = metadata.savedRevision || 0;
   }
 
-  function exportData() {
+  function exportObjects() {
     var objects = [];
 
     for (var _id in byId) {
@@ -192,7 +231,12 @@ app.service('$data', function() {
         objects.push(byId[_id]);
     }
 
-    return [data, metadata];
+    return objects;
+  }
+
+  function exportData() {
+    var objects = exportObjects();
+    return [objects, metadata];
   }
 
   function getObject(_id) {
@@ -251,6 +295,7 @@ app.service('$data', function() {
       list.push(tgt);
     }
 
+    bumpRevision();
     deferredSaveToLocalStorage();
 
     if (callback)
@@ -307,17 +352,222 @@ app.service('$data', function() {
     return metadata;
   }
 
+  function setMetadata(metadata_) {
+    for (var key in metadata) {
+      if (metadata.hasOwnProperty(key))
+        delete metadata[key];
+    }
+
+    updateMetadata(metadata_);
+  }
+
+  function updateMetadata(metadata_) {
+    metadata_ = metadata_ || {};
+
+    for (var key in metadata_) {
+      if (metadata_.hasOwnProperty(key))
+        metadata[key] = metadata_[key];
+    }
+  }
+
+  function bumpRevision() {
+    metadata.revision = 1 + ~~metadata.revision;
+  }
+
   this.importData = importData;
   this.exportData = exportData;
+  this.saveToDrive = saveToDrive;
+  this.loadFromDrive = loadFromDrive;
+  this.newModel = newModel;
   this.getObject = getObject;
   this.getObjects = getObjects;
   this.updateObject = updateObject;
   this.deleteObject = deleteObject;
   this.getMetadata = getMetadata;
+  this.setMetadata = setMetadata;
+  this.updateMetadata = updateMetadata;
 
   loadFromLocalStorage();
 });
 
+var CLIENT_ID = '484431590840.apps.googleusercontent.com';
+var API_KEY = 'AIzaSyBRfOuymdVHEvjHu7Z_IPcR4UK6x3O9dCc';
+var SCOPES = 'https://www.googleapis.com/auth/userinfo.profile ' +
+             'https://www.googleapis.com/auth/userinfo.email '+
+             'https://www.googleapis.com/auth/drive';
+
+
+app.service('$drive', function($rootScope, $http) {
+  // Pretty hacky but I couldn't retrieve *the* $drive instance with
+  // angular.injector(), it'd return a new instance.
+  if (window.$drive)
+    throw new Error("Multiple instantiation of the $drive service.");
+  else
+    window.$drive = this;
+
+  var self = this;
+
+  this.authorized = false;
+  this.authResult = null;
+
+  this.onGoogleClientLoad = onGoogleClientLoad;
+  this.authorize = authorize;
+  this.save = save;
+  this.load = load;
+
+  function onGoogleClientLoad() {
+    // Check authorization without showing popup.
+    gapi.auth.authorize({'client_id': CLIENT_ID,
+                         'scope': SCOPES,
+                         'immediate': true},
+                        onAuthorize);
+
+    function onAuthorize(result) {
+      console.log('aaa', result);
+      $rootScope.$apply(function() {
+        self.authResult = result;
+        self.authorized = result && !result.error;
+      });
+    }
+  }
+
+  function authorize(callback) {
+    if (self.authorized) {
+      if (callback)
+        setTimeout(callback, 0);
+      return;
+    }
+
+    gapi.auth.authorize({'client_id': CLIENT_ID,
+                         'scope': SCOPES,
+                         'immediate': false},
+                        onAuthorize);
+
+    function onAuthorize(result) {
+      self.authResult = result;
+      self.authorized = result && !result.error;
+
+      if (!callback)
+        return;
+      else if (self.authorized)
+        callback(null, result);
+      else
+        callback(result ? result.error : 'Not authorized');
+    }
+  }
+
+  function load(id, callback) {
+    authorize(function(err) {
+      if (err)
+        return callback(err);
+
+      var config = {
+        method: 'GET',
+        path: '/drive/v2/files/' + id,
+        callback: onMetadataLoad
+      };
+
+      gapi.client.request(config);
+
+      function onMetadataLoad(driveMetadata, result) {
+        if (!driveMetadata)
+          return callback(result.status + ' ' + result.statusText);
+
+        var config = {
+          method: 'GET',
+          url: driveMetadata.downloadUrl,
+          headers: {
+            Authorization: self.authResult.token_type + ' ' +
+                           self.authResult.access_token,
+            // Drop the x-requested-with header which is frivolously added
+            // by angularjs...
+            'X-Requested-With': null
+          },
+          transformResponse: []
+        };
+
+        $http(config)
+            .success(function(data, status, headers, config) {
+              var newMetadata = {
+                id: driveMetadata.id,
+                title: driveMetadata.title
+              };
+              callback(null, newMetadata, data);
+            })
+            .error(function(data, status, headers, config) {
+              callback(status);
+            });
+
+      }
+    });
+  }
+
+  function save(metadata, data, callback) {
+    authorize(function(err) {
+      if (err)
+        return callback(err);
+
+      var path = '/upload/drive/v2/files',
+          method = 'POST';
+
+      if (metadata.id) {
+        path += '/' + metadata.id;
+        method = 'PUT';
+      }
+
+      var boundary = '===b-o_u-n_d-a_r-y===',
+          mimeType = 'application/maia+json';
+
+      var driveMetadata = {
+        title: metadata.title || 'Untitled MAIA model',
+        mimeType: mimeType
+      };
+
+      var body = '--' + boundary + '\r\n' +
+                 'Content-Type: application/json; charset=UTF-8\r\n' +
+                 '\r\n' +
+                 JSON.stringify(driveMetadata) + '\r\n' +
+                 '--' + boundary + '\r\n' +
+                 'Content-Type: ' + mimeType + '\r\n' +
+                 '\r\n' +
+                 data + '\r\n' +
+                 '--' + boundary + '--';
+
+      var config = {
+        method: method,
+        path: path,
+        params: {
+          uploadType: 'multipart',
+        },
+        headers: {
+          'Content-Type': 'multipart/related; boundary="' + boundary + '"'
+        },
+        body: body,
+        callback: onUploaded
+      };
+
+      gapi.client.request(config);
+
+      function onUploaded(response, result) {
+        if (!response)
+          return callback(result.status + ' ' + result.statusText);
+
+        var newMetadata = {
+          id: response.id,
+          title: response.title
+        };
+        callback(null, newMetadata);
+
+        $rootScope.$digest();
+      }
+    });
+  }
+});
+
+
+function onGoogleClientLoad() {
+  $drive && $drive.onGoogleClientLoad();
+}
 
 /*
 app.directive('field', function() {
@@ -1418,11 +1668,215 @@ function PlanRecordController($scope) {
   $scope.validators.push(labelValidator);
 }
 
-function NavbarController($scope, $data) {
-  $scope.download = function() {
-    var json = JSON.stringify($data.exportData(), null, 2);
-    var mime = "application/binary";
-    var dataUri = 'data:' + mime + ';charset=utf-8,' + encodeURIComponent(json);
-    window.location = dataUri;
+function NavbarController($scope, $data, $drive, $dialog, $rootScope) {
+  $scope.drive = $drive;
+  $scope.metadata = $data.getMetadata();
+  $scope.saving = false;
+
+  $scope.$watch('metadata.title', function(title) {
+    if (title) {
+      $scope.formattedTitle1 = "'" + title + "'";
+      $scope.formattedTitle2 = title;
+    } else {
+      $scope.formattedTitle1 = 'This model';
+      $scope.formattedTitle2 = 'Unnamed model'
+    }
+  });
+
+  function confirmDiscardSave(cb) {
+    if ($scope.metadata.revision == $scope.metadata.savedRevision)
+      return cb();
+
+    $dialog.dialog({
+      templateUrl: 'templates/discard-save-dialog.html',
+      controller: 'DiscardSaveDialogController'
+    }).open()
+      .then(function(result) {
+        if (result === 'save')
+          $scope.save(function(saved) {
+            if (saved)
+              cb();
+          });
+        else if (result === 'discard')
+          cb();
+      });
   }
+
+  $scope.newModel = function() {
+    confirmDiscardSave(function() {
+      $data.newModel();
+    });
+  };
+
+  $scope.save = function(cb) {
+    // Show dialog box only if the model has never been saved before.
+    if (!$scope.metadata.id) {
+      $dialog.dialog({
+        templateUrl: 'templates/save-rename-copy-dialog.html',
+        controller: 'SaveDialogController'
+      }).open()
+        .then(function(saved) {
+          if (cb)
+            cb(saved);
+        });
+
+    } else {
+      $scope.saving = true;
+      $data.saveToDrive(function(err) {
+        $scope.saving = false;
+
+        if (cb)
+          cb(!err);
+      });
+    }
+  };
+
+  $scope.rename = function() {
+    $dialog.dialog({
+      templateUrl: 'templates/save-rename-copy-dialog.html',
+      controller: 'RenameDialogController'
+    }).open();
+  };
+
+  $scope.copy = function() {
+    $dialog.dialog({
+      templateUrl: 'templates/save-rename-copy-dialog.html',
+      controller: 'CopyDialogController'
+    }).open();
+  };
+
+  $scope.open = function() {
+    confirmDiscardSave(function() {
+      $drive.authorize(function(err) {
+        if (err)
+          return;
+
+        // A simple callback implementation.
+        function pickerCallback(data) {
+          if (data.action == google.picker.Action.PICKED) {
+            var fileId = data.docs[0].id;
+            alert('The user selected: ' + fileId);
+          }
+        }
+
+        var view = new google.picker.View(google.picker.ViewId.DOCS);
+        view.setMimeTypes('application/maia+json');
+
+        var picker = new google.picker.PickerBuilder()
+                     .setAppId(CLIENT_ID)
+                     .addView(view)
+                     .addView(new google.picker.DocsUploadView())
+                     .addView(new google.picker.View(google.picker.ViewId.FOLDERS))
+                     .setCallback(onPick)
+                     .setOAuthToken($drive.authResult.access_token)
+                     .build();
+
+        picker.setVisible(true);
+
+        function onPick(result) {
+          if (!result || result.action !== 'picked' || !result.docs ||
+              !result.docs[0])
+            return;
+
+          $data.loadFromDrive(result.docs[0].id, function(err) {
+            if (err)
+              return;
+
+            picker.setVisible(false);
+          });
+        }
+      });
+    });
+  };
+}
+
+
+function SaveDialogController($scope, $data, $drive, $rootScope, dialog) {
+  $scope.title = $data.getMetadata().title || '';
+  $scope.drive = $drive;
+  $scope.busy = false;
+  $scope.mode = 'save';
+
+  $scope.save = function() {
+    $scope.busy = true;
+    $data.updateMetadata({title: $scope.title});
+
+    $data.saveToDrive(function(err) {
+      dialog.close(!err);
+    });
+  };
+
+  $scope.close = function() {
+    dialog.close(false);
+  };
+}
+
+
+function RenameDialogController($scope, $data, $drive, $rootScope, dialog) {
+  $scope.title = $data.getMetadata().title || '';
+  $scope.drive = $drive;
+  $scope.busy = false;
+  $scope.mode = 'rename';
+
+  $scope.save = function() {
+    $scope.busy = true;
+    $data.updateMetadata({title: $scope.title});
+
+    $data.saveToDrive(function(err) {
+      dialog.close(!err);
+    });
+  };
+
+  $scope.close = function() {
+    dialog.close(false);
+  };
+}
+
+
+function CopyDialogController($scope, $data, $drive, $rootScope, dialog) {
+  var title = $data.getMetadata().title;
+
+  if (title)
+    $scope.title = 'Copy of ' + title;
+  else
+    $scope.title = '';
+
+  $scope.drive = $drive;
+  $scope.busy = false;
+  $scope.mode = 'copy';
+
+  $scope.save = function() {
+    $scope.busy = true;
+    $data.updateMetadata({title: $scope.title, id: null, savedRevision: 0});
+
+    $data.saveToDrive(function(err) {
+      dialog.close(!err);
+    });
+  };
+
+  $scope.close = function() {
+    dialog.close(false);
+  };
+}
+
+
+function DiscardSaveDialogController($scope, $data, $drive, $rootScope, dialog) {
+  var title = $data.getMetadata().title;
+
+  if (title)
+    $scope.formattedTitle = "model '" + title + "'";
+  else
+    $scope.title = 'this model';
+
+  $scope.save = function() {
+    dialog.close('save');
+  };
+
+  $scope.discard = function() {
+    dialog.close('discard');
+  };
+
+  $scope.cancel = function() {
+    dialog.close('cancel');
+  };
 }

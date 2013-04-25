@@ -170,7 +170,24 @@ field label {
   width: 200px !important;
 }
 
+.navbar-fixed-top ul.nav {
+  padding-left: 20px;
+}
+
+.model-status {
+  padding: 10px 30px 10px;
+  color: #999;
+}
+
+.model-status-saving {
+  color: #08c;
+}
+
 .help, .help-inner {
   max-width: 400px;
   height: 500px;
+}
+
+.modal-body .row-fluid {
+  width: auto;
 }
