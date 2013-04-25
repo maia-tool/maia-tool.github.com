@@ -410,12 +410,16 @@ app.service('$drive', function($rootScope, $http) {
   this.authorized = false;
   this.authResult = null;
 
-  this.onGoogleClientLoad = onGoogleClientLoad;
   this.authorize = authorize;
   this.save = save;
   this.load = load;
 
-  function onGoogleClientLoad() {
+  backgroundAuthorize();
+
+  function backgroundAuthorize() {
+    if (!gapi.auth || !gapi.auth.authorize)
+      return setTimeout(backgroundAuthorize, 100);
+
     // Check authorization without showing popup.
     gapi.auth.authorize({'client_id': CLIENT_ID,
                          'scope': SCOPES,
@@ -564,10 +568,6 @@ app.service('$drive', function($rootScope, $http) {
   }
 });
 
-
-function onGoogleClientLoad() {
-  $drive && $drive.onGoogleClientLoad();
-}
 
 /*
 app.directive('field', function() {
