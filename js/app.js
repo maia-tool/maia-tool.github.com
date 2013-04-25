@@ -427,7 +427,6 @@ app.service('$drive', function($rootScope, $http) {
                         onAuthorize);
 
     function onAuthorize(result) {
-      console.log('aaa', result);
       $rootScope.$apply(function() {
         self.authResult = result;
         self.authorized = result && !result.error;
@@ -568,20 +567,6 @@ app.service('$drive', function($rootScope, $http) {
   }
 });
 
-
-/*
-app.directive('field', function() {
-  return {
-  scope: {
-
-  },
-  template: '<div class="span4">@label</div' +
-        '<div class="span8">
-
-
-  }
-})
-*/
 
 function objectValues(obj) {
   var arr = [];
