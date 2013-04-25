@@ -345,6 +345,7 @@ app.service('$data', function($drive) {
       }
     }
 
+    bumpRevision();
     deferredSaveToLocalStorage();
   }
 
