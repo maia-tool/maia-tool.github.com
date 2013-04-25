@@ -8,12 +8,14 @@
     MAIA models are stored in your personal google drive account.<br>
     You need to authorize MAIA to save models to your google drive.
   </div>
-  <div ng-hide="busy" class="row-fluid">
-    <div class="span3">
-      <label>Document title</label>
-    </div>
-    <div class="span9">
-      <input type="text" ng-model="title">
+  <div class="field" ng-hide="busy">
+    <div class="row-fluid">
+      <div class="span3">
+        <label>Document title</label>
+      </div>
+      <div class="span9">
+        <input type="text" ng-model="title">
+      </div>
     </div>
   </div>
   <div ng-show="busy" class="progress progress-striped active">
@@ -21,7 +23,13 @@
   </div>
 </div>
 <div class="modal-footer">
-  <button ng-show="drive.authorized"ng-click="save()" class="btn btn-primary">Save</button>
-  <button ng-hide="drive.authorized" ng-click="save()" class="btn btn-primary">Authorize and save</button>
-  <button ng-click="close()" class="btn">Cancel</button>
+  <button ng-show="drive.authorized"ng-click="save()" class="btn btn-primary">
+    <i class="icon-ok icon-white"></i> OK
+  </button>
+  <button ng-hide="drive.authorized" ng-click="save()" class="btn btn-primary">
+    <i class="icon-ok icon-white"></i> Authorize and save
+  </button>
+  <button ng-click="close()" class="btn">
+    <i class="icon-ban-circle"></i> Cancel
+  </button>
 </div>

@@ -8,6 +8,7 @@
 }
 
 field input.ng-scope,
+.field input,
 field .select2-choices,
 field .select2-container > .select2-choice ,
 .matrix td .select2-choices,
@@ -28,7 +29,8 @@ field .select2-container,
 
 field .select2-container,
 .matrix td .select2-container,
-field input.ng-scope {
+field input.ng-scope,
+.field input {
   margin: -5px 0 -5px 0;
 }
 
@@ -48,7 +50,9 @@ field input.ng-scope {
           transition: border linear 0.2s, box-shadow linear 0.2s;
 }
 
-field, .matrix td {
+field,
+.field,
+.matrix td {
   min-height: 30px;
 }
 
@@ -147,7 +151,9 @@ td.align-right {
 }
 
 .modal field .row-fluid,
-.modal field .row-fixed {
+.modal field .row-fixed,
+.modal .field .row-fluid,
+.modal .field .row-fixed {
   padding: 7px;
 }
 
@@ -155,7 +161,8 @@ td.align-right {
   min-height: 0;
 }
 
-field label {
+field label,
+.field label {
   margin: 0;
   color: #556;
 }
