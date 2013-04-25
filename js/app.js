@@ -1654,7 +1654,36 @@ function PlanRecordController($scope) {
   $scope.validators.push(labelValidator);
 }
 
-function NavbarController($scope, $data, $drive, $dialog, $rootScope) {
+app.service('$picker', function($drive) {
+  var picker;
+
+  this.getPicker = getPicker;
+
+  function getPicker() {
+    if (!picker)
+      picker = buildPicker();
+
+    return picker;
+  }
+
+  function buildPicker() {
+    var view = new google.picker.DocsView(google.picker.ViewId.DOCS);
+    view.setMimeTypes('application/maia+json');
+    view.setMode(google.picker.DocsViewMode.LIST);
+
+    var picker = new google.picker.PickerBuilder()
+                 .setAppId(CLIENT_ID)
+                 .addView(view)
+                 .addView(new google.picker.View(google.picker.ViewId.FOLDERS))
+                 .addView(new google.picker.DocsUploadView())
+                 .setOAuthToken($drive.authResult.access_token)
+                 .build();
+
+    return picker;
+  }
+});
+
+function NavbarController($scope, $data, $drive, $dialog, $picker, $rootScope) {
   $scope.drive = $drive;
   $scope.metadata = $data.getMetadata();
   $scope.saving = false;
@@ -1737,26 +1766,8 @@ function NavbarController($scope, $data, $drive, $dialog, $rootScope) {
         if (err)
           return;
 
-        // A simple callback implementation.
-        function pickerCallback(data) {
-          if (data.action == google.picker.Action.PICKED) {
-            var fileId = data.docs[0].id;
-            alert('The user selected: ' + fileId);
-          }
-        }
-
-        var view = new google.picker.View(google.picker.ViewId.DOCS);
-        view.setMimeTypes('application/maia+json');
-
-        var picker = new google.picker.PickerBuilder()
-                     .setAppId(CLIENT_ID)
-                     .addView(view)
-                     .addView(new google.picker.DocsUploadView())
-                     .addView(new google.picker.View(google.picker.ViewId.FOLDERS))
-                     .setCallback(onPick)
-                     .setOAuthToken($drive.authResult.access_token)
-                     .build();
-
+        var picker = $picker.getPicker();
+        picker.setCallback(onPick);
         picker.setVisible(true);
 
         function onPick(result) {
