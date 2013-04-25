@@ -1,13 +1,13 @@
 var app = angular.module('maia', ['ui', 'ui.bootstrap', 'maia']);
 
-app.value('ui.config', {
-  dialog: {
+app.config(function($dialogProvider) {
+  $dialogProvider.options({
     backdrop: true,
     keyboard: true,
     backdropClick: false,
     backdropFade: true,
     modalClass: 'modal bounceInDown animated',
-  }
+  });
 });
 
 app.config(function($routeProvider, $locationProvider) {
